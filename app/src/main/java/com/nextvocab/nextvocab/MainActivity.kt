@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,26 +57,43 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = "ScreenA",
+    startDestination: String = Screen.MainScreen.route,
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable("ScreenA") {
-            ScreenA(navController)
+        composable(Screen.MainScreen.route) {
+            MainScreen(navController)
         }
-        composable("ScreenB") {
-            ScreenB(navController)
+        composable(Screen.AddScreen.route) {
+            AddScreen() {
+
+                navController.previousBackStackEntry?.savedStateHandle?.set("resultKey", it)
+                navController.navigateUp()
+//                navController.navigate(Screen.MainScreen.route)
+//                navController.popBackStack()
+            }
+
         }
     }
 }
 
-@Composable
-fun ScreenA(navController: NavController) {
-    val dataList = listOf("test1", "test2", "test3")
+sealed class Screen(val route: String) {
+    object MainScreen : Screen("main_screen")
+    object AddScreen : Screen("add_new_vocab")
+}
 
+@Composable
+fun MainScreen(navController: NavController) {
+    var itemList by rememberSaveable { mutableStateOf(listOf<String>()) }
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+    val result = savedStateHandle?.get<String>("resultKey")
+    result?.let {
+        itemList = itemList + it
+        savedStateHandle.remove<String>("resultKey")
+    }
     Column(
         modifier = Modifier.padding(24.dp),
         verticalArrangement = Arrangement.SpaceBetween,
@@ -83,7 +101,7 @@ fun ScreenA(navController: NavController) {
     ) {
         Button(
             onClick = {
-                navController.navigate("ScreenB")
+                navController.navigate(Screen.AddScreen.route)
 
             }, colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50),
@@ -99,7 +117,7 @@ fun ScreenA(navController: NavController) {
                 .padding(start = 24.dp, end = 24.dp, top = 12.dp, bottom = 12.dp)
                 .weight(1f)
         ) {
-            items(dataList) { item ->
+            items(itemList) { item ->
                 Text(
                     text = item,
                 )
@@ -121,9 +139,8 @@ fun ScreenA(navController: NavController) {
 }
 
 @Composable
-fun ScreenB(navController: NavController) {
+fun AddScreen(onNavigateBack: (String) -> Unit) {
     var text by remember { mutableStateOf("") }
-    val itemList = remember { mutableStateListOf<String>() }
     Column(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
@@ -139,9 +156,7 @@ fun ScreenB(navController: NavController) {
             )
             Button(
                 onClick = {
-                    itemList.add(text)
-                    navController.navigate("ScreenA")
-
+                    onNavigateBack(text)
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4CAF50),
                     contentColor = Color(0xFFFFFFFF)
@@ -156,7 +171,10 @@ fun ScreenB(navController: NavController) {
 
 
     @Serializable
-    data class AddNewWord(val name: String)
+    data class AddNewWord(
+        val id: Int = 0,
+        val name: String
+    )
 }
 
 @Serializable

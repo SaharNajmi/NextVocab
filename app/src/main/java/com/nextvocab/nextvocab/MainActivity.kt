@@ -1,6 +1,7 @@
 package com.nextvocab.nextvocab
 
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,7 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nextvocab.nextvocab.ui.theme.NextVocabTheme
-import kotlinx.serialization.Serializable
+import kotlinx.parcelize.Parcelize
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,12 +68,9 @@ fun AppNavHost(
             MainScreen(navController)
         }
         composable(Screen.AddScreen.route) {
-            AddScreen() {
-
-                navController.previousBackStackEntry?.savedStateHandle?.set("resultKey", it)
+            AddScreen() {model->
+                navController.previousBackStackEntry?.savedStateHandle?.set("resultKey",model)
                 navController.navigateUp()
-//                navController.navigate(Screen.MainScreen.route)
-//                navController.popBackStack()
             }
 
         }
@@ -84,15 +81,22 @@ sealed class Screen(val route: String) {
     object MainScreen : Screen("main_screen")
     object AddScreen : Screen("add_new_vocab")
 }
+@Parcelize
+data class WordModel(
+    val id: Int = 0,
+    val name: String = "",
+    val meaning: String = ""
+) : Parcelable
 
 @Composable
 fun MainScreen(navController: NavController) {
-    var itemList by rememberSaveable { mutableStateOf(listOf<String>()) }
+    var itemList by rememberSaveable { mutableStateOf(listOf<WordModel>()) }
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-    val result = savedStateHandle?.get<String>("resultKey")
-    result?.let {
+    val wordModel = savedStateHandle?.get<WordModel>("resultKey")
+
+    wordModel?.let {
         itemList = itemList + it
-        savedStateHandle.remove<String>("resultKey")
+        savedStateHandle.remove<WordModel>("resultKey")
     }
     Column(
         modifier = Modifier.padding(24.dp),
@@ -119,7 +123,7 @@ fun MainScreen(navController: NavController) {
         ) {
             items(itemList) { item ->
                 Text(
-                    text = item,
+                    text = item.name + "   :" + item.meaning,
                 )
             }
         }
@@ -139,7 +143,7 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
-fun AddScreen(onNavigateBack: (String) -> Unit) {
+fun AddScreen(onNavigateBack: (WordModel) -> Unit) {
     var text by remember { mutableStateOf("") }
     Column(
         verticalArrangement = Arrangement.SpaceBetween
@@ -156,7 +160,7 @@ fun AddScreen(onNavigateBack: (String) -> Unit) {
             )
             Button(
                 onClick = {
-                    onNavigateBack(text)
+                    onNavigateBack(WordModel(name = text, meaning = "test"))
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF4CAF50),
                     contentColor = Color(0xFFFFFFFF)
@@ -167,15 +171,4 @@ fun AddScreen(onNavigateBack: (String) -> Unit) {
         }
 
     }
-
-
-
-    @Serializable
-    data class AddNewWord(
-        val id: Int = 0,
-        val name: String
-    )
 }
-
-@Serializable
-data class AddNewWord(val name: String)

@@ -68,4 +68,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation ("io.coil-kt:coil-compose:1.4.0")
+    implementation ("com.aallam.openai:openai-client:3.0.0")
+    implementation ("io.ktor:ktor-client-android:2.2.4")
 }

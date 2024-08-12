@@ -71,4 +71,5 @@ dependencies {
     implementation ("io.coil-kt:coil-compose:1.4.0")
     implementation ("com.aallam.openai:openai-client:3.0.0")
     implementation ("io.ktor:ktor-client-android:2.2.4")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 }

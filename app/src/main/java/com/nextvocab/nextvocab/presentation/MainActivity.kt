@@ -3,15 +3,14 @@ package com.nextvocab.nextvocab.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -34,17 +33,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nextvocab.nextvocab.core.Constants
 import com.nextvocab.nextvocab.domain.model.Vocab
 import com.nextvocab.nextvocab.presentation.theme.NextVocabTheme
 import com.nextvocab.nextvocab.presentation.util.Screen
-import com.nextvocab.nextvocab.presentation.viewmodel.MainViewModel
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,37 +60,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CounterScreen()
-//                    AppNavHost(navController = rememberNavController())
+                    AppNavHost(navController = rememberNavController())
                 }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun CounterScreen(viewModel: MainViewModel = viewModel()) {
-    val count = viewModel.count.value
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Count: $count")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row {
-            Button(onClick = { viewModel.incrementCount() }) {
-                Text(text = "Increment")
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Button(onClick = { viewModel.decrementCount() }) {
-                Text(text = "Decrement")
             }
         }
     }
@@ -96,7 +71,7 @@ fun CounterScreen(viewModel: MainViewModel = viewModel()) {
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.AddScreen.route,
+    startDestination: String = Screen.MainScreen.route,
 ) {
     NavHost(
         modifier = modifier,
@@ -104,7 +79,9 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
         composable(Screen.MainScreen.route) {
-            MainScreen(navController)
+            MainScreen(navController, onNavigate = { data ->
+                navController.navigate("${Screen.DetailScreen.route}/$data")
+            })
         }
         composable(Screen.AddScreen.route) {
             AddScreen() { model ->
@@ -116,11 +93,18 @@ fun AppNavHost(
             }
 
         }
+        composable(
+            "${Screen.DetailScreen.route}/{data}",
+            arguments = listOf(navArgument("data") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val data = backStackEntry.arguments?.getString("data")?:""
+            DetailVocab(navController = navController, data = data)
+        }
     }
 }
 
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(navController: NavController, onNavigate: (String) -> Unit) {
     var itemList by rememberSaveable { mutableStateOf(listOf<Vocab>()) }
     val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
     val vocab = savedStateHandle?.get<Vocab>(Constants.ResultKey)
@@ -153,9 +137,9 @@ fun MainScreen(navController: NavController) {
                 .weight(1f)
         ) {
             items(itemList) { item ->
-                Text(
-                    text = item.name + "   :" + item.meaning,
-                )
+                VocabItem(vocab = item, onItemClick = {
+                    navController.navigate("${Screen.DetailScreen.route}/${item}}")
+                })
             }
         }
         Button(
@@ -174,6 +158,17 @@ fun MainScreen(navController: NavController) {
 }
 
 @Composable
+fun VocabItem(vocab: Vocab, onItemClick: (Vocab) -> Unit) {
+    Box(
+        modifier = Modifier
+            .clickable { onItemClick(vocab) }
+            .padding(16.dp)
+    ) {
+        Text(text = vocab.name, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
 fun AddScreen(onNavigateBack: (Vocab) -> Unit) {
     var text by remember { mutableStateOf("") }
     Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(12.dp)) {
@@ -183,7 +178,7 @@ fun AddScreen(onNavigateBack: (Vocab) -> Unit) {
         ) {
             IconButton(
                 onClick = {
-                    onNavigateBack(Vocab(name = text))
+                    onNavigateBack(Vocab())
                 }
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Color.Red)
@@ -191,7 +186,7 @@ fun AddScreen(onNavigateBack: (Vocab) -> Unit) {
 
             IconButton(
                 onClick = {
-                    onNavigateBack(Vocab())
+                    onNavigateBack(Vocab(name = text))
                 }
             ) {
                 Icon(Icons.Outlined.Add, contentDescription = "", tint = Color.Red)
@@ -205,8 +200,21 @@ fun AddScreen(onNavigateBack: (Vocab) -> Unit) {
                 .padding(12.dp),
             onValueChange = { newText ->
                 text = newText
-            }
+            },
+            placeholder = { (Text(text = "Your new word")) }
         )
+        Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF673AB7),
+                contentColor = Color(0xFFFFFFFF)
+            ),
+            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp)
+        ) {
+            Text(text = "Word Familiar")
+        }
         Button(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF673AB7),
@@ -235,19 +243,26 @@ fun AddScreen(onNavigateBack: (Vocab) -> Unit) {
         ) {
             Text(text = "Select examples")
         }
-        Button(
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF673AB7),
-                contentColor = Color(0xFFFFFFFF)
-            ),
-            onClick = { /*TODO*/ },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
+    }
+}
+
+@Composable
+fun DetailVocab(navController: NavController, data: String) {
+    Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(12.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Word Familiar")
+            IconButton(
+                onClick = {
+                   navController.popBackStack()
+                }
+            ) {
+                Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Color.Red)
+            }
         }
 
-
+        Text(text = data)
     }
+
 }

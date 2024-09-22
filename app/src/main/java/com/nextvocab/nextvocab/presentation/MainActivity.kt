@@ -3,6 +3,7 @@ package com.nextvocab.nextvocab.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,23 +47,31 @@ import androidx.navigation.navArgument
 import com.nextvocab.nextvocab.core.Constants
 import com.nextvocab.nextvocab.domain.model.Vocab
 import com.nextvocab.nextvocab.presentation.theme.NextVocabTheme
+import com.nextvocab.nextvocab.presentation.ui.WordDefinitionScreen
 import com.nextvocab.nextvocab.presentation.util.Screen
+import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: WordViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NextVocabTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavHost(navController = rememberNavController())
-                }
-            }
+//            NextVocabTheme {
+//                // A surface container using the 'background' color from the theme
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                    color = MaterialTheme.colorScheme.background
+//                ) {
+//                    AppNavHost(navController = rememberNavController())
+//                }
+//            }
+            WordDefinitionScreen(viewModel = viewModel)
         }
     }
 }

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextvocab.nextvocab.domain.model.WordDefinition
 import com.nextvocab.nextvocab.domain.usecase.GetWordDefinitionUseCase
+import com.nextvocab.nextvocab.presentation.util.ApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,7 +23,17 @@ class WordViewModel @Inject constructor(
 
     fun fetchWordDefinition(word: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            wordDefinitionState = getWordDefinitionUseCase(word)
+            val response = getWordDefinitionUseCase(word)
+            when (response) {
+                is ApiResponse.Success -> {
+                    wordDefinitionState = response.data
+                }
+                is ApiResponse.Error -> {
+//                    _errorMessage.value = response.error
+                }
+                is ApiResponse.Loading -> {
+                }
+            }
         }
     }
 }

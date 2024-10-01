@@ -6,7 +6,7 @@ import com.nextvocab.nextvocab.domain.model.WordDefinition
 data class WordDefinitionResponse(
     val license: License,
     val meanings: List<Meaning>,
-    val phonetic: String,
+    val phonetic: String?,
     val phonetics: List<Phonetic>,
     val sourceUrls: List<String>,
     val word: String
@@ -21,10 +21,10 @@ data class WordDefinitionResponse(
     }
 }
 data class Meaning(
-    val antonyms: List<Any>,
     val definitions: List<Definition>,
     val partOfSpeech: String,
-    val synonyms: List<String>
+    val synonyms: List<String> = emptyList(),
+    val antonyms: List<String> = emptyList()
 )
 data class License(
     val name: String,
@@ -32,13 +32,19 @@ data class License(
 )
 data class Phonetic(
     val audio: String,
-    val license: License,
-    val sourceUrl: String,
-    val text: String
+    val license: License?,
+    val sourceUrl: String?,
+    val text: String?
 )
 data class Definition(
-    val antonyms: List<Any>,
     val definition: String,
-    val synonyms: List<Any>,
+    val synonyms: List<String> = emptyList(),
+    val antonyms: List<String> = emptyList(),
     val example:String?=null
+)
+
+data class ErrorResponse(
+    val title: String,
+    val message: String,
+    val resolution: String
 )

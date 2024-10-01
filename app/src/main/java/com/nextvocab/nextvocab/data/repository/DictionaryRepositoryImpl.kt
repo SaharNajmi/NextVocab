@@ -9,8 +9,15 @@ import com.nextvocab.nextvocab.presentation.util.ApiResponse
 class DictionaryRepositoryImpl(
     private val apiService: DictionaryApiService
 ) : DictionaryRepository {
-    override suspend fun getWordDefinition(word: String): ApiResponse<List<WordDefinition>> {
-        return try {
+    override suspend fun getWordDefinition(word: String):List<WordDefinitionResponse> {
+        return try{
+            apiService.getWordDefinition(word)
+        }
+         catch (e: Exception) {
+             e.printStackTrace()
+             emptyList()
+         }
+        /*return try {
             val response = apiService.getWordDefinition(word)
             when (response) {
                 is ApiResponse.Success -> {
@@ -20,6 +27,7 @@ class DictionaryRepositoryImpl(
 
                 is ApiResponse.Error -> {
                     ApiResponse.Error("Unknown error: " + response.error)
+
                 }
 
                 is ApiResponse.Loading -> {
@@ -27,7 +35,7 @@ class DictionaryRepositoryImpl(
                 }
             }
         } catch (e: Exception) {
-            ApiResponse.Error("Error occurred while fetching data")
-        }
+            ApiResponse.Error("Error occurred while fetching data: ${e.localizedMessage}")
+        }*/
     }
 }

@@ -12,7 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 
 @Composable
@@ -41,9 +46,18 @@ fun WordDefinitionScreen(viewModel: WordViewModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         wordDefinition.forEach { definition ->
-            Text(text = "${definition.word}: ${definition.meaning}")
-            definition.example?.let {
-                Text(text = "Example: $it")
+            Text(
+                text = "${definition.word}: ${
+                    definition.phonetic ?: definition.phonetics.mapNotNull { it.text }
+                        .joinToString()
+                }",
+                color = Color.Magenta,
+                fontSize = 18.sp,
+            )
+            definition.meanings.forEach {
+                it.definitions.forEach {  mean ->
+                    Text(text = "* ${mean.definition}")
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
         }

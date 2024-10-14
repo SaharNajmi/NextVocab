@@ -1,6 +1,6 @@
-package com.nextvocab.nextvocab.data.di
+package com.nextvocab.nextvocab.di
 
-import com.nextvocab.nextvocab.data.remote.DictionaryApiService
+import com.nextvocab.nextvocab.data.datasource.remote.DictionaryApiService
 import com.nextvocab.nextvocab.data.repository.DictionaryRepositoryImpl
 import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import dagger.Module

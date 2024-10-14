@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.util
+package com.nextvocab.nextvocab.data.response
 
 import com.nextvocab.nextvocab.core.Constants
 

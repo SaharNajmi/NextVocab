@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.theme
+package com.nextvocab.nextvocab.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build

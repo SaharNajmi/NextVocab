@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.theme
+package com.nextvocab.nextvocab.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

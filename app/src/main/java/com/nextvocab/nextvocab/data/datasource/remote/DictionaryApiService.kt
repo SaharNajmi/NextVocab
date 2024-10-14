@@ -1,7 +1,6 @@
-package com.nextvocab.nextvocab.data.remote
+package com.nextvocab.nextvocab.data.datasource.remote
 
 import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
-import com.nextvocab.nextvocab.presentation.util.ApiResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 

@@ -13,16 +13,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 
 @Composable
 fun WordDefinitionScreen(viewModel: WordViewModel) {
-    val wordDefinition = viewModel.wordDefinitionState
 
     Column(modifier = Modifier.padding(16.dp)) {
         var text = remember { mutableStateOf("") }
@@ -45,21 +41,28 @@ fun WordDefinitionScreen(viewModel: WordViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        wordDefinition.forEach { definition ->
+        viewModel.wordDefinition?.let { definition ->
             Text(
-                text = "${definition.word}: ${
-                    definition.phonetic ?: definition.phonetics.mapNotNull { it.text }
-                        .joinToString()
-                }",
+                text = definition.word,
                 color = Color.Magenta,
                 fontSize = 18.sp,
             )
-            definition.meanings.forEach {
-                it.definitions.forEach {  mean ->
-                    Text(text = "* ${mean.definition}")
-                }
-            }
+            Text(text = "MEANINGS")
+            ItemRowList(examples = definition.meaning)
             Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "EXAMPLES")
+
+            ItemRowList(examples = definition.example)
+        }
+    }
+}
+
+@Composable
+fun ItemRowList(examples: List<String>?) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        examples?.forEach { example ->
+            Text(text = example)
+            Spacer(modifier = Modifier.height(4.dp)) // Optional: Adds space between items
         }
     }
 }

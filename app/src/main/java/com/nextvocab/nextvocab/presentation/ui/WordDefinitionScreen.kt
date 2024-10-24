@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -15,22 +16,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nextvocab.nextvocab.data.response.ApiResponse
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 
 @Composable
 fun WordDefinitionScreen(viewModel: WordViewModel) {
 
     Column(modifier = Modifier.padding(16.dp)) {
-        var text = remember { mutableStateOf("") }
+        val text = remember { mutableStateOf("") }
 
         Row {
-            TextField(
-                value = text.value,
-                onValueChange = {
-                    text.value = it
-                },
-                label = { Text("Enter word...") }
-            )
+            TextField(value = text.value, onValueChange = {
+                text.value = it
+            }, label = { Text("Enter word...") })
             Button(onClick = {
                 viewModel.fetchWordDefinition(text.value)
                 text.value = ""
@@ -41,18 +39,37 @@ fun WordDefinitionScreen(viewModel: WordViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        viewModel.wordDefinition?.let { definition ->
-            Text(
-                text = definition.word,
-                color = Color.Magenta,
-                fontSize = 18.sp,
-            )
-            Text(text = "MEANINGS")
-            ItemRowList(examples = definition.meaning)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "EXAMPLES")
+        when (val result = viewModel.wordDefinition) {
+            is ApiResponse.Loading -> {
+                CircularProgressIndicator()
+            }
 
-            ItemRowList(examples = definition.example)
+            is ApiResponse.Success -> {
+                val wordDefinition = result.data ?: run {
+                    Text(text = "No definition available", color = Color.Gray)
+                    return
+                }
+                Text(
+                    text = wordDefinition.word,
+                    color = Color.Magenta,
+                    fontSize = 18.sp,
+                )
+
+                Text(text = "MEANINGS")
+                ItemRowList(examples = wordDefinition.meaning)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = "EXAMPLES")
+                ItemRowList(examples = wordDefinition.example)
+            }
+
+            is ApiResponse.Error -> {
+                Text(text = "Error: ${result.error}", color = Color.Red)
+            }
+
+            null -> {
+                //
+            }
         }
     }
 }

@@ -57,7 +57,6 @@ android {
 }
 
 dependencies {
-    val nav_version = "2.7.7"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -73,16 +72,17 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation ("io.coil-kt:coil-compose:1.4.0")
-    implementation ("com.aallam.openai:openai-client:3.0.0")
-    implementation ("io.ktor:ktor-client-android:2.2.4")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.5.0")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation(libs.androidx.navigation.compose)
+    implementation (libs.coil.compose)
+    implementation (libs.aallam.openai.client)
+    implementation (libs.ktor.client.android)
+    implementation (libs.kotlinx.serialization.json)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.kotlinx.coroutines.android)
+    implementation(libs.hilt.android)
+    implementation (libs.androidx.animation)
+    kapt(libs.hilt.compiler)
 }
 
 kapt {

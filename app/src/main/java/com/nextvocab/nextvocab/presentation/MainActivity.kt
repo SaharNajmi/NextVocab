@@ -39,11 +39,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nextvocab.nextvocab.core.Constants
 import com.nextvocab.nextvocab.domain.model.Vocab
-import com.nextvocab.nextvocab.data.response.Screen
-import com.nextvocab.nextvocab.presentation.ui.HomeScreen
+import com.nextvocab.nextvocab.presentation.navigation.NavGraph
+import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -64,7 +65,9 @@ class MainActivity : ComponentActivity() {
 //                }
 //            }
 //            WordDefinitionScreen(viewModel = viewModel)
-            HomeScreen()
+//            HomeScreen(navController)
+            val navController = rememberNavController()
+            NavGraph(navController = navController,viewModel)
         }
     }
 }
@@ -73,14 +76,14 @@ class MainActivity : ComponentActivity() {
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String = Screen.MainScreen.route,
+    startDestination: String = Screen.HomeScreen.route,
 ) {
     NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = startDestination
     ) {
-        composable(Screen.MainScreen.route) {
+        composable(Screen.HomeScreen.route) {
             MainScreen(navController, onNavigate = { data ->
                 navController.navigate("${Screen.DetailScreen.route}/$data")
             })

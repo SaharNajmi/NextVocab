@@ -24,14 +24,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.nextvocab.nextvocab.R
+import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.ItemColor
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor1
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor2
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +46,9 @@ fun HomeScreen() {
             .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = ItemColor),
             shape = RoundedCornerShape(12.dp),
-            onClick = {}) {
+            onClick = {
+                navController.navigate(Screen.SearchScreen.route)
+            }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,

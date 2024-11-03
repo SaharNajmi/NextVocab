@@ -17,8 +17,8 @@ fun NavGraph(navController: NavHostController,viewModel:WordViewModel) {
         composable(route = Screen.HomeScreen.route) {
          HomeScreen(navController)
         }
-        composable(route = Screen.SearchScreen.route) {
-            WordDefinitionScreen(viewModel = viewModel)
+        composable(route = Screen.AddScreen.route) {
+            WordDefinitionScreen(navController = navController, viewModel = viewModel)
         }
     }
 }

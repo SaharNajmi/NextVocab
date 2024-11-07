@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,14 +12,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -41,63 +38,48 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.R
 import com.nextvocab.nextvocab.data.response.ApiResponse
-import com.nextvocab.nextvocab.presentation.navigation.Screen
-import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
+import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.PurpleGrey90
-import com.nextvocab.nextvocab.presentation.ui.theme.darkGreen
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 
 @Composable
-fun WordDefinitionScreen(navController: NavController, viewModel: WordViewModel) {
+fun SearchScreen(navController: NavController, viewModel: WordViewModel) {
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.background(BackColor).padding(16.dp)) {
         val text = remember { mutableStateOf("") }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Button(contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ), onClick = {
-                    navController.popBackStack()
-                }
-            ) {
-                Text("Cancel", style = TextStyle(fontSize = 14.sp, color = Color.Red))
-            }
-            Button(contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ), onClick = {}
-            ){
-                Text("Save", style = TextStyle(fontSize = 14.sp, color = darkGreen))
-            }
-        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBack,
+                contentDescription = stringResource(id = R.string.back),
+                tint = Color.White,
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .clickable {
+                        navController.popBackStack()
+                    },
+            )
             TextField(value = text.value, onValueChange = { text.value = it },
                 textStyle = TextStyle(fontSize = 12.sp),
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 12.dp),
+                    .padding(end = 4.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
                 shape = RoundedCornerShape(8.dp),
                 maxLines = 1,
-                label = { Text("FRONT SIDE", style = TextStyle(fontSize = 12.sp)) })
+                label = { Text("Search the word", style = TextStyle(fontSize = 12.sp)) })
             Icon(
                 imageVector = Icons.Filled.Search,
                 contentDescription = stringResource(id = R.string.search_icon),
-                tint = Color.Black,
+                tint = Color.White,
                 modifier = Modifier
-                    .size(18.dp)
                     .clickable {
                         viewModel.fetchWordDefinition(text.value)
                         text.value = ""
@@ -107,10 +89,10 @@ fun WordDefinitionScreen(navController: NavController, viewModel: WordViewModel)
         }
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
-        Text(
-            "BACK SIDE", style = TextStyle(fontSize = 12.sp, color = Purple40),
-            modifier = Modifier.padding(start = 12.dp)
-        )
+//        Text(
+//            "BACK SIDE", style = TextStyle(fontSize = 12.sp, color = Purple40),
+//            modifier = Modifier.padding(start = 12.dp)
+//        )
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(

@@ -47,6 +47,7 @@ fun HomeScreen(navController: NavController) {
             colors = ButtonDefaults.buttonColors(containerColor = ItemColor),
             shape = RoundedCornerShape(12.dp),
             onClick = {
+                navController.navigate(Screen.SearchScreen.route)
             }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

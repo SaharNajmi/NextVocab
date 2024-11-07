@@ -11,7 +11,7 @@ class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition
                     .joinToString()
             }",
             meaning = entity.meanings.flatMap { meaning ->
-                meaning.definitions.map { definition -> "* ${definition.definition}" }
+                meaning.definitions.map { definition -> definition.definition }
             },
             example = entity.meanings.flatMap { meaning ->
                 meaning.definitions.mapNotNull { definition -> definition.example }

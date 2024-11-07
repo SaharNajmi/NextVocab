@@ -43,7 +43,7 @@ fun HomeScreen(navController: NavController) {
     ) {
         Button(
             modifier = Modifier
-            .fillMaxWidth(),
+                .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = ItemColor),
             shape = RoundedCornerShape(12.dp),
             onClick = {
@@ -61,7 +61,7 @@ fun HomeScreen(navController: NavController) {
                     modifier = Modifier.size(12.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text =stringResource(id = R.string.search))
+                Text(text = stringResource(id = R.string.search))
             }
         }
 
@@ -84,7 +84,7 @@ fun HomeScreen(navController: NavController) {
                 .padding(top = 4.dp),
             shape = RoundedCornerShape(12.dp),
             onClick = {
-                navController.navigate(Screen.AddScreen.route)
+                navController.navigate(Screen.FrontSideScreen.route)
             }
         )
     }

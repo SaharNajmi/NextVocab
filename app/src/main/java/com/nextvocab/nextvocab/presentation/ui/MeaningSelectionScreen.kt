@@ -24,8 +24,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDefinition) {
@@ -56,7 +60,7 @@ fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDe
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Choose the meaning you want",
+            text = "Choose the meanings you want",
             style = TextStyle(fontSize = 18.sp, color = Color.White),
             modifier = Modifier.align(Alignment.Start)
         )
@@ -85,7 +89,11 @@ fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDe
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .padding(16.dp),
-                onClick = { }
+                onClick = {
+                    val jsonWordModel = Gson().toJson(wordModel)
+                    val encodedJson = URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
+                    navController.navigate("${Screen.ExamplesScreen.route}/$encodedJson")
+                }
             ) {
                 Text("Next")
             }

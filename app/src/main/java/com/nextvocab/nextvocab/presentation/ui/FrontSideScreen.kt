@@ -6,14 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -31,12 +28,15 @@ import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
-fun FrontSideScreen(navController: NavController,viewModel: WordViewModel) {
+fun FrontSideScreen(navController: NavController, viewModel: WordViewModel) {
     val text = remember { mutableStateOf("") }
+    var isLoading = remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,25 +81,30 @@ fun FrontSideScreen(navController: NavController,viewModel: WordViewModel) {
         )
 
         Spacer(modifier = Modifier.height(38.dp))
-
-        Button(modifier = Modifier
-            .fillMaxWidth(), onClick = {
-            viewModel.fetchWordDefinition(text.value)
-            when (val result = viewModel.wordDefinition) {
-                is ApiResponse.Error -> {
-
-                }
-                ApiResponse.Loading -> {
-
-                }
-                is ApiResponse.Success -> {
-                    val jsonWordModel = Gson().toJson(result.data)
-                    val encodedJson = URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
-                    navController.navigate("${Screen.MeaningScreen.route}/$encodedJson")
-                }
-                null ->{}
+        LoadingButton(
+            text = "Next",
+            modifier = Modifier.fillMaxWidth(),
+            isLoading = isLoading.value,
+            onClick = {
+                isLoading.value = true
+                viewModel.fetchWordDefinition(text.value)
             }
-        })
-        { Text(text = "Next") }
+        )
+        when (val result = viewModel.wordDefinition) {
+            is ApiResponse.Error -> {
+                isLoading.value = false
+            }
+            ApiResponse.Loading -> {
+            }
+            is ApiResponse.Success -> {
+                val jsonWordModel = Gson().toJson(result.data)
+                val encodedJson = URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
+
+                isLoading.value = false
+                navController.navigate("${Screen.MeaningScreen.route}/$encodedJson")
+            }
+            null -> {
+            }
+        }
     }
 }

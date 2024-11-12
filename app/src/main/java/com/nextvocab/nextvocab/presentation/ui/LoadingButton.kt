@@ -1,6 +1,7 @@
 package com.nextvocab.nextvocab.presentation.ui
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -14,7 +15,8 @@ fun LoadingButton(text: String, modifier: Modifier, isLoading: Boolean, onClick:
     Button(
         onClick = { if (!isLoading) onClick() },
         enabled = !isLoading,
-        modifier = modifier
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
     ) {
         if (isLoading) {
             CircularProgressIndicator(

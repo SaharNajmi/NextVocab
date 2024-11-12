@@ -1,6 +1,7 @@
 package com.nextvocab.nextvocab.presentation.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -28,11 +30,16 @@ import com.google.gson.Gson
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
+import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
-fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDefinition) {
+fun MeaningSelectionScreen(
+    navController: NavController,
+    wordModel: DomainWordDefinition,
+    viewModel: WordViewModel
+) {
     val items = wordModel.meaning
     val checkedStates = remember { items.map { mutableStateOf(false) } }
 
@@ -42,11 +49,23 @@ fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDe
             .background(BackColor)
             .padding(18.dp)
     ) {
-        Text(
-            text = wordModel.word,
-            style = TextStyle(fontSize = 14.sp, color = Color.White),
-            modifier = Modifier.align(Alignment.Start)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                text = wordModel.word,
+                style = TextStyle(fontSize = 14.sp, color = Color.White),
+                modifier = Modifier.weight(1f)
+            )
+            Button(colors = ButtonDefaults.buttonColors(
+                containerColor = BackColor
+            ), onClick = {
+                viewModel.resetWordDefinition()
+                navController.navigate(Screen.HomeScreen.route)
+            }) { Text("Cancel", style = TextStyle(color = Color.White)) }
+        }
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -91,7 +110,8 @@ fun MeaningSelectionScreen(navController: NavController, wordModel: DomainWordDe
                     .padding(16.dp),
                 onClick = {
                     val jsonWordModel = Gson().toJson(wordModel)
-                    val encodedJson = URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
+                    val encodedJson =
+                        URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
                     navController.navigate("${Screen.ExamplesScreen.route}/$encodedJson")
                 }
             ) {

@@ -27,4 +27,8 @@ class WordViewModel @Inject constructor(
             wordDefinition = response
         }
     }
+
+    fun resetWordDefinition() {
+        wordDefinition = null
+    }
 }

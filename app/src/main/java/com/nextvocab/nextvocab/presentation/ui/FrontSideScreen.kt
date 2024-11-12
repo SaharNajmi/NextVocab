@@ -1,6 +1,5 @@
 package com.nextvocab.nextvocab.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,8 +27,6 @@ import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -86,8 +83,10 @@ fun FrontSideScreen(navController: NavController, viewModel: WordViewModel) {
             modifier = Modifier.fillMaxWidth(),
             isLoading = isLoading.value,
             onClick = {
-                isLoading.value = true
-                viewModel.fetchWordDefinition(text.value)
+               if(text.value.isNotEmpty()) {
+                   isLoading.value = true
+                   viewModel.fetchWordDefinition(text.value)
+               }
             }
         )
         when (val result = viewModel.wordDefinition) {

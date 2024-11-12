@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.google.gson.Gson
-import com.nextvocab.nextvocab.data.utils.parseJsonToModel
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.presentation.ui.ExampleSelectionScreen
 import com.nextvocab.nextvocab.presentation.ui.FrontSideScreen
@@ -22,7 +21,7 @@ import java.nio.charset.StandardCharsets
 fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
     NavHost(
         navController = navController,
-        startDestination = Screen.FrontSideScreen.route
+        startDestination = Screen.HomeScreen.route
     ) {
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController)
@@ -47,18 +46,14 @@ fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
                 }
                 decodedJson?.let {
                     val wordModel = Gson().fromJson(it, DomainWordDefinition::class.java)
-                    MeaningSelectionScreen(navController = navController, wordModel = wordModel)
+                    MeaningSelectionScreen(
+                        navController = navController,
+                        wordModel = wordModel,
+                        viewModel = viewModel
+                    )
                 } ?: Log.e("Navigation", "Decoded JSON is null")
             }
         }
-//        composable(
-//            route = Screen.ExamplesScreen.route,
-//            arguments = listOf(navArgument("dataModel") { type = NavType.StringType })
-//        ) { backStackEntry ->
-//            val dataModelJson = backStackEntry.arguments?.getString("dataModel")
-//            val dataModel = dataModelJson?.let { parseJsonToModel<DomainWordDefinition>(it) }
-//            ExampleSelectionScreen(navController = navController, wordModel = dataModel)
-//        }
 
         composable(
             route = "${Screen.ExamplesScreen.route}/{wordModel}",
@@ -74,7 +69,11 @@ fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
                 }
                 decodedJson?.let {
                     val wordModel = Gson().fromJson(it, DomainWordDefinition::class.java)
-                    ExampleSelectionScreen(navController = navController, wordModel = wordModel)
+                    ExampleSelectionScreen(
+                        navController = navController,
+                        wordModel = wordModel,
+                        viewModel = viewModel
+                    )
                 } ?: Log.e("Navigation", "Decoded JSON is null")
             }
         }

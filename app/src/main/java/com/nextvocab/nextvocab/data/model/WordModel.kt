@@ -1,7 +1,5 @@
 package com.nextvocab.nextvocab.data.model
 
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
-
 
 data class WordDefinitionResponse(
     val license: License,
@@ -11,20 +9,6 @@ data class WordDefinitionResponse(
     val sourceUrls: List<String>,
     val word: String
 ) {
-    fun WordDefinitionResponse.toDomainModel(): DomainWordDefinition {
-        return DomainWordDefinition(
-            word = "${this.word}: ${
-                this.phonetic ?: this.phonetics.mapNotNull { it.text }
-                    .joinToString()
-            }",
-            meaning = this.meanings.flatMap { meaning ->
-                meaning.definitions.map { definition -> "* ${definition.definition}" }
-            },
-            example = this.meanings.flatMap { meaning ->
-                meaning.definitions.map { definition -> "+ ${definition.example}" }
-            }
-        )
-    }
 
     data class Meaning(
         val definitions: List<Definition>,

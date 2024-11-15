@@ -13,6 +13,7 @@ class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition
             meaning = entity.meanings.flatMap { meaning ->
                 meaning.definitions.map { definition -> definition.definition }
             },
+            partOfSpeak = entity.meanings.joinToString { it.partOfSpeech },
             example = entity.meanings.flatMap { meaning ->
                 meaning.definitions.mapNotNull { definition -> definition.example }
                     .map { example -> "+ $example" }

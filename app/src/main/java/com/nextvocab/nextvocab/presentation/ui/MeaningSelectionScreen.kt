@@ -1,7 +1,6 @@
 package com.nextvocab.nextvocab.presentation.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -49,23 +47,11 @@ fun MeaningSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = wordModel.word,
-                style = TextStyle(fontSize = 14.sp, color = Color.White),
-                modifier = Modifier.weight(1f)
-            )
-            Button(colors = ButtonDefaults.buttonColors(
-                containerColor = BackColor
-            ), onClick = {
-                viewModel.resetWordDefinition()
-                navController.navigate(Screen.HomeScreen.route)
-            }) { Text("Cancel", style = TextStyle(color = Color.White)) }
-        }
+       WordHeader(wordModel = wordModel,
+           onCancelClick = {
+           viewModel.resetWordDefinition()
+           navController.navigate(Screen.HomeScreen.route)
+       })
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))

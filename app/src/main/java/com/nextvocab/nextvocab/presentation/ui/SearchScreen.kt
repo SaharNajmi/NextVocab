@@ -145,11 +145,11 @@ fun SearchScreen(navController: NavController, viewModel: WordViewModel) {
 }
 
 @Composable
-fun ItemRowList(examples: List<String>?) {
+fun <T>ItemRowList(examples: List<T>?) {
     Column(modifier = Modifier.padding(16.dp)) {
         examples?.forEach { example ->
-            Text(text = example)
-            Spacer(modifier = Modifier.height(4.dp)) // Optional: Adds space between items
+            Text(text = example.toString())
+            Spacer(modifier = Modifier.height(4.dp))
         }
     }
 }

@@ -2,6 +2,7 @@ package com.nextvocab.nextvocab.data.mapper
 
 import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.MeaningModel
 
 class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition> {
     override fun mapToDomain(entity: WordDefinitionResponse): DomainWordDefinition {
@@ -11,7 +12,7 @@ class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition
                     .joinToString()
             }",
             meaning = entity.meanings.flatMap { meaning ->
-                meaning.definitions.map { definition -> definition.definition }
+                meaning.definitions.map { definition -> MeaningModel(definition.definition, false) }
             },
             partOfSpeak = entity.meanings.joinToString { it.partOfSpeech },
             example = entity.meanings.flatMap { meaning ->

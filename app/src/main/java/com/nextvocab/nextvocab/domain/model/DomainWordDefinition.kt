@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class DomainWordDefinition(
     val word: String,
-    val meaning: List<String>,
+    val meaning: List<MeaningModel>,
     val partOfSpeak:String,
     val example: List<String>? = null
 ) : Parcelable

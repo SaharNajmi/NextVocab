@@ -45,6 +45,7 @@ import com.nextvocab.nextvocab.core.Constants
 import com.nextvocab.nextvocab.domain.model.Vocab
 import com.nextvocab.nextvocab.presentation.navigation.NavGraph
 import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,6 +53,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val viewModel: WordViewModel by viewModels()
+    private val shareViewModel:ShareViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -67,7 +70,7 @@ class MainActivity : ComponentActivity() {
 //            WordDefinitionScreen(viewModel = viewModel)
 //            HomeScreen(navController)
             val navController = rememberNavController()
-            NavGraph(navController = navController,viewModel)
+            NavGraph(navController = navController,viewModel,shareViewModel)
         }
     }
 }

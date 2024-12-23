@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
+import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
@@ -55,9 +57,10 @@ import java.nio.charset.StandardCharsets
 fun MeaningSelectionScreen(
     navController: NavController,
     wordModel: DomainWordDefinition,
-    viewModel: WordViewModel
+    viewModel: WordViewModel,
+    shareViewModel: ShareViewModel
 ) {
-    var items by remember { mutableStateOf(wordModel.meaning) }
+    var items by rememberSaveable { mutableStateOf(wordModel.meaning) }
     var newMeaning by remember { mutableStateOf("") }
     val meaningsState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -152,6 +155,7 @@ fun MeaningSelectionScreen(
                     val jsonWordModel = Gson().toJson(wordModel)
                     val encodedJson =
                         URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
+                    shareViewModel.meanings = items.filter { it.isCheck }
                     navController.navigate("${Screen.ExamplesScreen.route}/$encodedJson")
                 }
             ) {

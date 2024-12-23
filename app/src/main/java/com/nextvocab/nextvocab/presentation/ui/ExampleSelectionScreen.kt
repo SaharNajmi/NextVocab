@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -25,16 +30,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.Vocab
 import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
+import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
+import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 
 @Composable
 fun ExampleSelectionScreen(
     navController: NavController,
     wordModel: DomainWordDefinition?,
-    viewModel: WordViewModel
+    viewModel: WordViewModel,
+    shareViewModel: ShareViewModel
 ) {
+    //todo-> four time call!!!!!
+    println("DDDDDDDDFFFFFFF"+ shareViewModel.meanings)
+
     val items = wordModel?.example!!
     val checkedStates = remember { items.map { mutableStateOf(false) } }
 
@@ -44,11 +56,21 @@ fun ExampleSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        WordHeader(wordModel = wordModel,
-            onCancelClick = {
-                viewModel.resetWordDefinition()
-                navController.navigate(Screen.HomeScreen.route)
-            })
+        Row {
+            IconButton(
+                onClick = {
+                    navController.popBackStack()
+                }
+            ) {
+                Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
+            }
+            WordHeader(wordModel = wordModel,
+                onCancelClick = {
+                    viewModel.resetWordDefinition()
+                    shareViewModel.resetYourSteps()
+                    navController.navigate(Screen.HomeScreen.route)
+                })
+        }
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 

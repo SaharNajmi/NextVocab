@@ -14,11 +14,16 @@ import com.nextvocab.nextvocab.presentation.ui.FrontSideScreen
 import com.nextvocab.nextvocab.presentation.ui.HomeScreen
 import com.nextvocab.nextvocab.presentation.ui.MeaningSelectionScreen
 import com.nextvocab.nextvocab.presentation.ui.SearchScreen
+import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
 import java.nio.charset.StandardCharsets
 
 @Composable
-fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
+fun NavGraph(
+    navController: NavHostController,
+    viewModel: WordViewModel,
+    shareViewModel: ShareViewModel
+) {
     NavHost(
         navController = navController,
         startDestination = Screen.HomeScreen.route
@@ -49,7 +54,8 @@ fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
                     MeaningSelectionScreen(
                         navController = navController,
                         wordModel = wordModel,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        shareViewModel = shareViewModel
                     )
                 } ?: Log.e("Navigation", "Decoded JSON is null")
             }
@@ -72,7 +78,8 @@ fun NavGraph(navController: NavHostController, viewModel: WordViewModel) {
                     ExampleSelectionScreen(
                         navController = navController,
                         wordModel = wordModel,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        shareViewModel = shareViewModel
                     )
                 } ?: Log.e("Navigation", "Decoded JSON is null")
             }

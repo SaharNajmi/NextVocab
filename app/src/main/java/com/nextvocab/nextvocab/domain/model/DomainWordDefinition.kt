@@ -8,5 +8,5 @@ data class DomainWordDefinition(
     val word: String,
     val meaning: List<MeaningModel>,
     val partOfSpeak:String,
-    val example: List<String>? = null
+    val example: List<ExampleModel>
 ) : Parcelable

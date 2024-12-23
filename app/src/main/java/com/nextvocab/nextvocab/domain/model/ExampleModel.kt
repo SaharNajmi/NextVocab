@@ -5,8 +5,8 @@ import kotlinx.parcelize.Parcelize
 import java.util.UUID
 
 @Parcelize
-data class MeaningModel(
+data class ExampleModel(
     val id: String = UUID.randomUUID().toString(),
-    val meaning: String,
+    val example: String,
     val isCheck: Boolean
 ) : Parcelable

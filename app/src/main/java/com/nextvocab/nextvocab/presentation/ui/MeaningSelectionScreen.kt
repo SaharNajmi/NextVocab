@@ -2,7 +2,6 @@ package com.nextvocab.nextvocab.presentation.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -62,7 +61,7 @@ fun MeaningSelectionScreen(
 ) {
     var items by rememberSaveable { mutableStateOf(wordModel.meaning) }
     var newMeaning by remember { mutableStateOf("") }
-    val meaningsState = rememberLazyListState()
+    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
     Column(
@@ -120,12 +119,12 @@ fun MeaningSelectionScreen(
                 .padding(start = 10.dp)
                 .fillMaxHeight(), onClick = {
                 items = buildList {
-                    add(MeaningModel(newMeaning, true))
+                    add(MeaningModel(meaning = newMeaning, isCheck = true))
                     addAll(items)
                 }
                 newMeaning = ""
                 scope.launch {
-                    meaningsState.animateScrollToItem(0)
+                    listState.animateScrollToItem(0)
                 }
             }
             ) {
@@ -133,19 +132,21 @@ fun MeaningSelectionScreen(
             }
         }
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Column {
             ShowMeaning(
-                items,
-                onCheckedChange = { isChecked, checkedIndex ->
-                    items = items.mapIndexed { index, meaningModel ->
-                        if (index == checkedIndex)
-                            meaningModel.copy(isCheck = isChecked)
-                        else
-                            meaningModel
-                    }
-                }, meaningsState,
-                modifier = Modifier.weight(1F)
-            )
+                modifier = Modifier.weight(1F),
+                items = items,
+                state = listState
+            ) { isChecked, checkedIndex ->
+                items = items.mapIndexed { index, meaningModel ->
+                    if (index == checkedIndex)
+                        meaningModel.copy(isCheck = isChecked)
+                    else
+                        meaningModel
+                }
+            }
 
             Button(
                 modifier = Modifier
@@ -167,29 +168,27 @@ fun MeaningSelectionScreen(
 
 @Composable
 fun ShowMeaning(
+    modifier: Modifier = Modifier,
     items: List<MeaningModel>,
-    onCheckedChange: (Boolean, Int) -> Unit,
     state: LazyListState,
-    modifier: Modifier = Modifier
+    onCheckedChange: (Boolean, Int) -> Unit,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier.weight(1F), state) {
-            items(items.size, key = { items[it].id }) { index ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                ) {
-                    Checkbox(
-                        checked = items[index].isCheck,
-                        onCheckedChange = {
-                            onCheckedChange(it, index)
-                        }
-                    )
-                    Text(
-                        text = items[index].meaning,
-                        style = TextStyle(fontSize = 14.sp, color = Color.White)
-                    )
-                }
+    LazyColumn(modifier = modifier, state) {
+        items(items.size, key = { items[it].id }) { index ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+            ) {
+                Checkbox(
+                    checked = items[index].isCheck,
+                    onCheckedChange = {
+                        onCheckedChange(it, index)
+                    }
+                )
+                Text(
+                    text = items[index].meaning,
+                    style = TextStyle(fontSize = 14.sp, color = Color.White)
+                )
             }
         }
     }

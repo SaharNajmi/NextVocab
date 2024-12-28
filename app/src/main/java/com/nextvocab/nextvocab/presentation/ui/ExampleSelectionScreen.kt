@@ -61,7 +61,8 @@ fun ExampleSelectionScreen(
     viewModel: WordViewModel,
     shareViewModel: ShareViewModel
 ) {
-    var items by rememberSaveable { mutableStateOf(wordModel.example) }
+    var items by rememberSaveable { mutableStateOf(shareViewModel.examples?:wordModel.example) }
+
     var newExample by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -74,7 +75,7 @@ fun ExampleSelectionScreen(
         Row {
             IconButton(
                 onClick = {
-                    navController.previousBackStackEntry?.savedStateHandle?.set("items", items)
+                    shareViewModel.examples=items
                     navController.popBackStack()
                 }
             ) {

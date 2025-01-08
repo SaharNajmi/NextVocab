@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.ui
+package com.nextvocab.nextvocab.presentation.ui.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,10 +40,10 @@ import com.nextvocab.nextvocab.R
 import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.PurpleGrey90
-import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 
 @Composable
-fun SearchScreen(navController: NavController, viewModel: WordViewModel) {
+fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
 
     Column(modifier = Modifier.background(BackColor).padding(16.dp)) {
         val text = remember { mutableStateOf("") }

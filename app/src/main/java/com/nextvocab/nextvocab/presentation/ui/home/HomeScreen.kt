@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.ui
+package com.nextvocab.nextvocab.presentation.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.R
-import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
+import com.nextvocab.nextvocab.presentation.ui.GradientButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.ItemColor
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor1
@@ -47,7 +48,7 @@ fun HomeScreen(navController: NavController) {
             colors = ButtonDefaults.buttonColors(containerColor = ItemColor),
             shape = RoundedCornerShape(12.dp),
             onClick = {
-                navController.navigate(Screen.SearchScreen.route)
+                navController.navigate(NavigationItem.SearchNavigationItem.route)
             }) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -84,7 +85,7 @@ fun HomeScreen(navController: NavController) {
                 .padding(top = 4.dp),
             shape = RoundedCornerShape(12.dp),
             onClick = {
-                navController.navigate(Screen.FrontSideScreen.route)
+                navController.navigate(NavigationItem.FrontSideNavigationItem.route)
             }
         )
     }

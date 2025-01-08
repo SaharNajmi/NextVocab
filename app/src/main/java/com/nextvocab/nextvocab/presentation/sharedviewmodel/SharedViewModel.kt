@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.viewmodel
+package com.nextvocab.nextvocab.presentation.sharedviewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,11 +14,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WordViewModel @Inject constructor(
+class SharedViewModel @Inject constructor(
     private val repository: DictionaryRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf<Loadable<DomainWordDefinition>?>(null)
+        private set
+    var wordDefinition by mutableStateOf<DomainWordDefinition?>(null)
         private set
 
     fun fetchWordDefinition(word: String) {
@@ -28,11 +30,12 @@ class WordViewModel @Inject constructor(
                 uiState = Loadable.Error(it.message ?: "error")
             }, onSuccess = {
                 uiState = Loadable.Success(it)
+                wordDefinition = it
             })
         }
     }
 
     fun resetWordDefinition() {
-        uiState = null
+        uiState = Loadable.Canceled
     }
 }

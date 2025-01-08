@@ -1,8 +1,7 @@
-package com.nextvocab.nextvocab.presentation.ui
+package com.nextvocab.nextvocab.presentation.ui.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -12,10 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,27 +39,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.domain.model.ExampleModel
-import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
+import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
-import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
-import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun ExampleSelectionScreen(
     navController: NavController,
-    wordModel: DomainWordDefinition,
-    viewModel: WordViewModel,
-    shareViewModel: ShareViewModel
+    viewModel: SharedViewModel,
+    exampleViewModel: ExampleViewModel
 ) {
-    var items by rememberSaveable { mutableStateOf(shareViewModel.examples?:wordModel.example) }
-
+    var items by rememberSaveable {
+        mutableStateOf(
+            exampleViewModel.examples ?: viewModel.wordDefinition?.example
+        )
+    }
     var newExample by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -75,17 +71,17 @@ fun ExampleSelectionScreen(
         Row {
             IconButton(
                 onClick = {
-                    shareViewModel.examples=items
+                    exampleViewModel.examples = items
                     navController.popBackStack()
                 }
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
             }
-            WordHeader(wordModel = wordModel,
+            WordHeader(wordModel = viewModel.wordDefinition!!,
                 onCancelClick = {
                     viewModel.resetWordDefinition()
-                    shareViewModel.resetYourSteps()
-                    navController.navigate(Screen.HomeScreen.route)
+                    exampleViewModel.resetYourSteps()
+                    navController.navigate(NavigationItem.HomeNavigationItem.route)
                 })
         }
 
@@ -133,7 +129,7 @@ fun ExampleSelectionScreen(
                 .fillMaxHeight(), onClick = {
                 items = buildList {
                     add(ExampleModel(example = newExample, isCheck = true))
-                    addAll(items)
+                    items?.let { addAll(it) }
                 }
                 newExample = ""
                 scope.launch {
@@ -148,10 +144,10 @@ fun ExampleSelectionScreen(
         Column {
             ShowExamples(
                 modifier = Modifier.weight(1f),
-                items = items,
+                items = items!!,
                 state = listState
             ) { isChecked, checkedIndex ->
-                items = items.mapIndexed { index, exampleModel ->
+                items = items!!.mapIndexed { index, exampleModel ->
                     if (index == checkedIndex)
                         exampleModel.copy(isCheck = isChecked)
                     else
@@ -165,7 +161,7 @@ fun ExampleSelectionScreen(
                     .padding(16.dp),
                 onClick = {
                     //todo
-                    shareViewModel.examples = items.filter { it.isCheck }
+                    //  shareViewModel.examples = items.filter { it.isCheck }
                 }
             ) {
                 Text("Next")

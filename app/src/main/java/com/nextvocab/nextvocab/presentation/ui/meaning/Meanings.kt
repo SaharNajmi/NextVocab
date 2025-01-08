@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.ui
+package com.nextvocab.nextvocab.presentation.ui.meaning
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,27 +39,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.gson.Gson
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
-import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
-import com.nextvocab.nextvocab.presentation.viewmodel.ShareViewModel
-import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
+import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Composable
 fun MeaningSelectionScreen(
     navController: NavController,
-    wordModel: DomainWordDefinition,
-    viewModel: WordViewModel,
-    shareViewModel: ShareViewModel
+    viewModel: SharedViewModel,
+    exampleViewModel: ExampleViewModel
 ) {
-    var items by rememberSaveable { mutableStateOf(wordModel.meaning) }
+    var items by rememberSaveable {
+        mutableStateOf(
+             viewModel.wordDefinition?.meaning
+        )
+    }
+
     var newMeaning by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -70,10 +70,10 @@ fun MeaningSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        WordHeader(wordModel = wordModel,
+        WordHeader(wordModel = viewModel.wordDefinition!!,
             onCancelClick = {
                 viewModel.resetWordDefinition()
-                navController.navigate(Screen.HomeScreen.route)
+                navController.navigate(Screen.HOME.name)
             })
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -120,7 +120,7 @@ fun MeaningSelectionScreen(
                 .fillMaxHeight(), onClick = {
                 items = buildList {
                     add(MeaningModel(meaning = newMeaning, isCheck = true))
-                    addAll(items)
+                    addAll(items!!)
                 }
                 newMeaning = ""
                 scope.launch {
@@ -137,10 +137,10 @@ fun MeaningSelectionScreen(
         Column {
             ShowMeaning(
                 modifier = Modifier.weight(1F),
-                items = items,
+                items = items!!,
                 state = listState
             ) { isChecked, checkedIndex ->
-                items = items.mapIndexed { index, meaningModel ->
+                items = items!!.mapIndexed { index, meaningModel ->
                     if (index == checkedIndex)
                         meaningModel.copy(isCheck = isChecked)
                     else
@@ -153,11 +153,7 @@ fun MeaningSelectionScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 onClick = {
-                    val jsonWordModel = Gson().toJson(wordModel)
-                    val encodedJson =
-                        URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
-                    shareViewModel.meanings = items.filter { it.isCheck }
-                    navController.navigate("${Screen.ExamplesScreen.route}/$encodedJson")
+                    navController.navigate(Screen.EXAMPLE.name)
                 }
             ) {
                 Text("Next")

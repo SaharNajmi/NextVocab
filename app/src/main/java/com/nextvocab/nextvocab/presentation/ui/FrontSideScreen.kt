@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
-import com.nextvocab.nextvocab.data.response.ApiResponse
+import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun FrontSideScreen(navController: NavController, viewModel: WordViewModel) {
     val text = remember { mutableStateOf("") }
-    var isLoading = remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -83,30 +83,32 @@ fun FrontSideScreen(navController: NavController, viewModel: WordViewModel) {
         LoadingButton(
             text = "Next",
             modifier = Modifier.fillMaxWidth(),
-            isLoading = isLoading.value,
+            isLoading = viewModel.uiState is Loadable.Loading,
             onClick = {
-               if(text.value.isNotEmpty()) {
-                   isLoading.value = true
-                   viewModel.fetchWordDefinition(text.value)
-               }
+                if (text.value.isNotEmpty()) {
+                    viewModel.fetchWordDefinition(text.value)
+                }
             }
         )
-        when (val result = viewModel.wordDefinition) {
-            is ApiResponse.Error -> {
-                isLoading.value = false
-                Toast.makeText(LocalContext.current, "We can't find this, try another one", Toast.LENGTH_SHORT).show()
-            }
-            ApiResponse.Loading -> {
-            }
-            is ApiResponse.Success -> {
-                val jsonWordModel = Gson().toJson(result.data)
-                val encodedJson = URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
 
-                isLoading.value = false
+        when (val result = viewModel.uiState) {
+            is Loadable.Error -> {
+                Toast.makeText(
+                    LocalContext.current,
+                    "We can't find this, try another one",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is Loadable.Success -> {
+                val jsonWordModel = Gson().toJson(result.data)
+                val encodedJson =
+                    URLEncoder.encode(jsonWordModel, StandardCharsets.UTF_8.toString())
+
                 navController.navigate("${Screen.MeaningScreen.route}/$encodedJson")
             }
-            null -> {
-            }
+
+            else -> {}
         }
     }
 }

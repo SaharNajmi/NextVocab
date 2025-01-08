@@ -35,7 +35,8 @@ object AppModule {
     @Provides
     fun provideDictionaryRepository(
         apiService: DictionaryApiService,
+        wordMapper:WordDefinitionMapper
     ): DictionaryRepository {
-        return DictionaryRepositoryImpl(apiService)
+        return DictionaryRepositoryImpl(apiService,wordMapper)
     }
 }

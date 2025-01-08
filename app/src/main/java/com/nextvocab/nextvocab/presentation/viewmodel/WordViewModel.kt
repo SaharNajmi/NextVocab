@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextvocab.nextvocab.data.response.ApiResponse
+import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
-import com.nextvocab.nextvocab.domain.usecase.GetWordDefinitionUseCase
+import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,20 +15,24 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WordViewModel @Inject constructor(
-    private val getWordDefinitionUseCase: GetWordDefinitionUseCase
+    private val repository: DictionaryRepository
 ) : ViewModel() {
-    var wordDefinition by mutableStateOf<ApiResponse<DomainWordDefinition?>?>(null)
+
+    var uiState by mutableStateOf<Loadable<DomainWordDefinition>?>(null)
         private set
 
     fun fetchWordDefinition(word: String) {
+        uiState = Loadable.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            wordDefinition = ApiResponse.Loading
-            val response = getWordDefinitionUseCase(word)
-            wordDefinition = response
+            repository.getWordDefinition(word).fold(onFailure = {
+                uiState = Loadable.Error(it.message ?: "error")
+            }, onSuccess = {
+                uiState = Loadable.Success(it)
+            })
         }
     }
 
     fun resetWordDefinition() {
-        wordDefinition = null
+        uiState = null
     }
 }

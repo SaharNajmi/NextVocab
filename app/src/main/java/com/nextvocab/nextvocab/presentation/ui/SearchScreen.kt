@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.R
-import com.nextvocab.nextvocab.data.response.ApiResponse
+import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.PurpleGrey90
 import com.nextvocab.nextvocab.presentation.viewmodel.WordViewModel
@@ -104,16 +104,15 @@ fun SearchScreen(navController: NavController, viewModel: WordViewModel) {
                 .padding(4.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            when (val result = viewModel.wordDefinition) {
-                is ApiResponse.Loading -> {
+
+            when (val result = viewModel.uiState ) {
+                is Loadable.Loading -> {
                     CircularProgressIndicator()
                 }
 
-                is ApiResponse.Success -> {
-                    val wordDefinition = result.data ?: run {
-                        Text(text = "No definition available", color = Color.Gray)
-                        return
-                    }
+                is Loadable.Success -> {
+                    val wordDefinition = result.data
+
                     Column(modifier = Modifier.fillMaxSize()) {
                         Text(
                             text = wordDefinition.word,
@@ -131,11 +130,11 @@ fun SearchScreen(navController: NavController, viewModel: WordViewModel) {
                     }
                 }
 
-                is ApiResponse.Error -> {
+                is Loadable.Error -> {
                     Text(text = "Error: ${result.error}", color = Color.Red)
                 }
 
-                null -> {
+                else -> {
                     //
                 }
             }

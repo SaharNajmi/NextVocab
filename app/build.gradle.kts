@@ -83,6 +83,10 @@ dependencies {
     implementation(libs.hilt.android)
     implementation (libs.androidx.animation)
     kapt(libs.hilt.compiler)
+
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
 }
 
 kapt {

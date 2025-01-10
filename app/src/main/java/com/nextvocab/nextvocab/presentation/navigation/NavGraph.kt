@@ -23,7 +23,7 @@ fun NavGraph(
         startDestination = NavigationItem.HomeNavigationItem.route
     ) {
         composable(route = NavigationItem.HomeNavigationItem.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController, sharedViewModel = viewModel)
         }
         composable(route = NavigationItem.SearchNavigationItem.route) {
             SearchScreen(navController = navController, viewModel = viewModel)
@@ -36,7 +36,7 @@ fun NavGraph(
         ) {
             MeaningSelectionScreen(
                 navController = navController,
-                viewModel = viewModel,
+                sharedViewModel = viewModel,
             )
         }
 
@@ -45,7 +45,7 @@ fun NavGraph(
         ) {
             ExampleSelectionScreen(
                 navController = navController,
-                viewModel = viewModel,
+                sharedViewModel = viewModel,
                 exampleViewModel = exampleViewModel
             )
         }

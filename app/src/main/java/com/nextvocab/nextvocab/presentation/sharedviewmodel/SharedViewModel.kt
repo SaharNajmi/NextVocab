@@ -1,5 +1,6 @@
 package com.nextvocab.nextvocab.presentation.sharedviewmodel
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,11 +21,25 @@ class SharedViewModel @Inject constructor(
     private val repository: DictionaryRepository,
     private val localRepository: WordsRepository
 ) : ViewModel() {
+    init {
+        getWords()
+    }
 
     var uiState by mutableStateOf<Loadable<DomainWordDefinition>?>(null)
         private set
     var wordDefinition by mutableStateOf<DomainWordDefinition?>(null)
         private set
+
+    private val _meanings = ArrayList<String>()
+    val meanings: List<String> get() = _meanings
+
+    private val _words = mutableStateOf( ArrayList<WordEntity>())
+    val words: MutableState<ArrayList<WordEntity>> get() = _words
+
+    fun addMeanings(meanings: List<String>) {
+        _meanings.addAll(meanings)
+    }
+
 
     fun fetchWordDefinition(word: String) {
         uiState = Loadable.Loading
@@ -44,9 +59,9 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun getWords() {
+   private fun getWords() {
         viewModelScope.launch(Dispatchers.IO) {
-            localRepository.getWords()
+           _words.value= localRepository.getWords() as ArrayList<WordEntity>
         }
     }
 

@@ -41,22 +41,20 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
-import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
-import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun MeaningSelectionScreen(
     navController: NavController,
-    viewModel: SharedViewModel,
-    exampleViewModel: ExampleViewModel
+    sharedViewModel: SharedViewModel,
 ) {
     var items by rememberSaveable {
         mutableStateOf(
-             viewModel.wordDefinition?.meaning
+            sharedViewModel.wordDefinition?.meaning
         )
     }
 
@@ -70,11 +68,12 @@ fun MeaningSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        WordHeader(wordModel = viewModel.wordDefinition!!,
+        WordHeader(wordModel = sharedViewModel.wordDefinition!!,
             onCancelClick = {
-                viewModel.resetWordDefinition()
+                sharedViewModel.resetWordDefinition()
                 navController.navigate(Screen.HOME.name)
             })
+
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -153,6 +152,8 @@ fun MeaningSelectionScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 onClick = {
+                    val meanings = items?.filter { it.isCheck }?.map { it.meaning }
+                    sharedViewModel.addMeanings(meanings?: listOf())
                     navController.navigate(Screen.EXAMPLE.name)
                 }
             ) {

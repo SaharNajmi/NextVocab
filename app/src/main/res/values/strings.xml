@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Next Vocab</string>
-    <string name="search">Search</string>
+    <string name="search">Search your card </string>
+    <string name="browse">Browse</string>
     <string name="add_a_new_card">Add a new card</string>
     <string name="study">Study</string>
+    <string name="cancel">Cancel</string>
     <string name="search_icon">search icon</string>
     <string name="back">back icon</string>
 </resources>

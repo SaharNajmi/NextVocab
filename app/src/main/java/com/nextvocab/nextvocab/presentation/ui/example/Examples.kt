@@ -40,6 +40,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.nextvocab.nextvocab.data.local.entities.WordEntity
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
@@ -51,12 +52,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun ExampleSelectionScreen(
     navController: NavController,
-    viewModel: SharedViewModel,
-    exampleViewModel: ExampleViewModel
+    sharedViewModel: SharedViewModel,
+    exampleViewModel: ExampleViewModel,
 ) {
     var items by rememberSaveable {
         mutableStateOf(
-            exampleViewModel.examples ?: viewModel.wordDefinition?.example
+            exampleViewModel.examples ?: sharedViewModel.wordDefinition?.example
         )
     }
     var newExample by remember { mutableStateOf("") }
@@ -77,9 +78,9 @@ fun ExampleSelectionScreen(
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
             }
-            WordHeader(wordModel = viewModel.wordDefinition!!,
+            WordHeader(wordModel = sharedViewModel.wordDefinition!!,
                 onCancelClick = {
-                    viewModel.resetWordDefinition()
+                    sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
                     navController.navigate(NavigationItem.HomeNavigationItem.route)
                 })
@@ -160,11 +161,23 @@ fun ExampleSelectionScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 onClick = {
-                    //todo
-                    //  shareViewModel.examples = items.filter { it.isCheck }
+                    val examples = items?.filter { it.isCheck }?.map { it.example }
+                    sharedViewModel.wordDefinition?.run {
+                        sharedViewModel.insertWord(
+                            WordEntity(
+                                word = word,
+                                meaning = sharedViewModel.meanings,
+                                partOfSpeak = partOfSpeak,
+                                example = examples
+                            )
+                        )
+                    }
+                    sharedViewModel.resetWordDefinition()
+                    exampleViewModel.resetYourSteps()
+                    navController.navigate(NavigationItem.HomeNavigationItem.route)
                 }
             ) {
-                Text("Next")
+                Text("ADD")
             }
         }
     }

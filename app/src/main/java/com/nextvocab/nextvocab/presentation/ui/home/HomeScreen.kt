@@ -28,7 +28,6 @@ import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.GradientButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor2
-import com.nextvocab.nextvocab.presentation.ui.theme.ItemColor
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor1
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor2
 
@@ -38,6 +37,8 @@ fun HomeScreen(
     sharedViewModel: SharedViewModel
 ) {
     var searchInput by remember { mutableStateOf("") }
+    val items = sharedViewModel.words
+
 
     Column(
         modifier = Modifier
@@ -80,10 +81,14 @@ fun HomeScreen(
         )
 
         LazyColumn(modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)) {
-            val lists = sharedViewModel.words.value
-            items(lists.size) { index ->
+            val filteredItems = if (searchInput.isEmpty()) {
+                items.value
+            } else {
+                items.value.filter { it.word.contains(searchInput) }
+            }
+            items(filteredItems.size) { index ->
                 Text(
-                    text = lists[index].word,
+                    text = filteredItems[index].word,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(4.dp))
@@ -92,9 +97,7 @@ fun HomeScreen(
                     style = TextStyle(color = Color.White)
                 )
             }
-
         }
-
     }
 }
 

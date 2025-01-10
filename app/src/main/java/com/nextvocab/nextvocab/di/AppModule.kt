@@ -1,11 +1,8 @@
 package com.nextvocab.nextvocab.di
 
-import com.nextvocab.nextvocab.data.datasource.remote.DictionaryApiService
-import com.nextvocab.nextvocab.data.mapper.Mapper
+import com.nextvocab.nextvocab.data.remote.DictionaryApiService
 import com.nextvocab.nextvocab.data.mapper.WordDefinitionMapper
-import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
 import com.nextvocab.nextvocab.data.repository.DictionaryRepositoryImpl
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import dagger.Module
 import dagger.Provides

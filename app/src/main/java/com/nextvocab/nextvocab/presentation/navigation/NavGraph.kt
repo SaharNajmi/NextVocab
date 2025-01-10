@@ -37,7 +37,6 @@ fun NavGraph(
             MeaningSelectionScreen(
                 navController = navController,
                 viewModel = viewModel,
-                exampleViewModel = exampleViewModel
             )
         }
 

@@ -1,9 +1,7 @@
 package com.nextvocab.nextvocab.data.repository
 
-import com.nextvocab.nextvocab.data.datasource.remote.DictionaryApiService
+import com.nextvocab.nextvocab.data.remote.DictionaryApiService
 import com.nextvocab.nextvocab.data.mapper.WordDefinitionMapper
-import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
-import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 

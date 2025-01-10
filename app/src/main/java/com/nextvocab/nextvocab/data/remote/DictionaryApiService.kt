@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.data.datasource.remote
+package com.nextvocab.nextvocab.data.remote
 
 import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
 import retrofit2.http.GET

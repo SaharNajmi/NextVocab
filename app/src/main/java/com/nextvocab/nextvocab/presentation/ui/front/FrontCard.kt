@@ -110,7 +110,7 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
                 }
 
                 is Loadable.Success -> {
-                    navController.navigate(NavigationItem.MeaningNavigationItem.route)
+                    navController.navigate(NavigationItem.Meanings.route)
                 }
 
                 else -> {}

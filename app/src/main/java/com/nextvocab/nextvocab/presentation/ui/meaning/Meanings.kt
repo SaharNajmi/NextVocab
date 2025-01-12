@@ -68,7 +68,8 @@ fun MeaningSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        WordHeader(wordModel = sharedViewModel.wordDefinition!!,
+        WordHeader(name = sharedViewModel.wordDefinition!!.word,
+            partOfSpeak = sharedViewModel.wordDefinition!!.partOfSpeak,
             onCancelClick = {
                 sharedViewModel.resetWordDefinition()
                 navController.navigate(Screen.HOME.name)
@@ -153,7 +154,7 @@ fun MeaningSelectionScreen(
                     .padding(16.dp),
                 onClick = {
                     val meanings = items?.filter { it.isCheck }?.map { it.meaning }
-                    sharedViewModel.addMeanings(meanings?: listOf())
+                    sharedViewModel.addMeanings(meanings ?: listOf())
                     navController.navigate(Screen.EXAMPLE.name)
                 }
             ) {

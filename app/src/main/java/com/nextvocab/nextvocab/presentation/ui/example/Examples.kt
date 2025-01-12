@@ -78,11 +78,12 @@ fun ExampleSelectionScreen(
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
             }
-            WordHeader(wordModel = sharedViewModel.wordDefinition!!,
+            WordHeader(name = sharedViewModel.wordDefinition!!.word,
+                partOfSpeak = sharedViewModel.wordDefinition!!.partOfSpeak,
                 onCancelClick = {
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.HomeNavigationItem.route)
+                    navController.navigate(NavigationItem.Home.route)
                 })
         }
 
@@ -174,7 +175,7 @@ fun ExampleSelectionScreen(
                     }
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.HomeNavigationItem.route)
+                    navController.navigate(NavigationItem.Home.route)
                 }
             ) {
                 Text("ADD")

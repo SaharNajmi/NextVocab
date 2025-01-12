@@ -15,26 +15,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
-fun WordHeader(wordModel: DomainWordDefinition,
-               onCancelClick: () -> Unit,) {
+fun WordHeader(
+    name: String, partOfSpeak: String,
+    onCancelClick: () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Text(
-            text = wordModel.word,
+            text = name,
             modifier = Modifier.padding(end = 4.dp),
-            style = TextStyle(fontSize = 16.sp, color = Color.White,fontWeight = FontWeight.Bold),
+            style = TextStyle(fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold),
         )
         Text(
-            text = wordModel.partOfSpeak,
+            text = partOfSpeak,
             modifier = Modifier.weight(1f),
-            style = TextStyle(fontSize = 12.sp, color = Color.White, ),
+            style = TextStyle(fontSize = 12.sp, color = Color.White),
         )
         Button(colors = ButtonDefaults.buttonColors(
             containerColor = BackColor

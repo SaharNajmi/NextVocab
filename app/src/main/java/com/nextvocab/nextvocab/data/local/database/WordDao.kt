@@ -10,7 +10,7 @@ import com.nextvocab.nextvocab.data.local.entities.WordEntity
 
 @Dao
 interface WordDao {
-    @Query("SELECT * FROM words")
+    @Query("SELECT * FROM words ORDER BY id DESC")
     suspend fun getWords(): List<WordEntity>
 
     @Insert(onConflict = OnConflictStrategy.NONE)

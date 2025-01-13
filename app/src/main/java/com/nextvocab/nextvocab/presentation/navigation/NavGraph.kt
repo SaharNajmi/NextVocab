@@ -59,7 +59,7 @@ fun NavGraph(
         ) { backStackEntry ->
             val itemJson = backStackEntry.arguments?.getString("item")
             val item = Gson().fromJson(itemJson, WordEntity::class.java)
-            CardDetailScreen(navController = navController, item = item)
+            CardDetailScreen(navController = navController, item = item, sharedViewModel = viewModel)
         }
     }
 }

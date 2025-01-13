@@ -12,4 +12,12 @@ class WordsRepositoryImpl(private val wordDao: WordDao) : WordsRepository {
     override suspend fun insertWord(word: WordEntity) {
         wordDao.insertWord(word)
     }
+
+    override suspend fun deleteWord(word: WordEntity) {
+        wordDao.delete(word)
+    }
+
+    override suspend fun updateWord(word: WordEntity) {
+        wordDao.update(word)
+    }
 }

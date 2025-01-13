@@ -2,6 +2,7 @@ package com.nextvocab.nextvocab.presentation.ui.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,13 +31,15 @@ import androidx.navigation.NavController
 import com.nextvocab.nextvocab.data.local.entities.WordEntity
 import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
 fun CardDetailScreen(
     navController: NavController,
-    item: WordEntity
+    item: WordEntity,
+    sharedViewModel: SharedViewModel
 ) {
     val formattedMeaning = item.meaning?.joinToString("\n") { "* $it" }
 
@@ -76,17 +80,41 @@ fun CardDetailScreen(
             value = textFieldValue,
             onValueChange = { textFieldValue = it })
 
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp),
-            shape = RoundedCornerShape(12.dp),
-            onClick = {
-                //todo edit call
-                navController.navigate(NavigationItem.Home.route)
+        Row {
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = 12.dp, end = 4.dp),
+                shape = RoundedCornerShape(12.dp),
+                onClick = {
+                    Regex
+                    val meanings = textFieldValue.lines()
+                        .filter { it.startsWith("*") }
+                        .map { it.removePrefix("*").trim() }
+                    val examples = textFieldValue.lines()
+                        .filter { it.matches(Regex("""\d+\..*""")) }
+                        .map { it.replaceFirst(Regex("""^\d+\."""), "").trim() }
+                        val newItem = item.copy(meaning = meanings, example = examples)
+                    sharedViewModel.updateWord(newItem)
+                    navController.navigate(NavigationItem.Home.route)
+                }
+            ) {
+                Text("Edit")
             }
-        ) {
-            Text("Apply")
+
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = 12.dp, start = 4.dp),
+                shape = RoundedCornerShape(12.dp),
+                onClick = {
+                    sharedViewModel.deleteWord(item)
+                    navController.navigate(NavigationItem.Home.route)
+                }
+            ) {
+                Text("Delete")
+            }
         }
+
     }
 }

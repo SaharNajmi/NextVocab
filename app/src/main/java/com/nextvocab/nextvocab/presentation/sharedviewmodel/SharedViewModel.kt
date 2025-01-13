@@ -33,13 +33,12 @@ class SharedViewModel @Inject constructor(
     private val _meanings = ArrayList<String>()
     val meanings: List<String> get() = _meanings
 
-    private val _words = mutableStateOf( ArrayList<WordEntity>())
+    private val _words = mutableStateOf(ArrayList<WordEntity>())
     val words: MutableState<ArrayList<WordEntity>> get() = _words
 
     fun addMeanings(meanings: List<String>) {
         _meanings.addAll(meanings)
     }
-
 
     fun fetchWordDefinition(word: String) {
         uiState = Loadable.Loading
@@ -53,15 +52,40 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun insertWord(wordModel: WordEntity) {
+    private fun getWords() {
         viewModelScope.launch(Dispatchers.IO) {
-            localRepository.insertWord(wordModel)
+            _words.value = localRepository.getWords() as ArrayList<WordEntity>
         }
     }
 
-   private fun getWords() {
+    fun insertWord(wordModel: WordEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-           _words.value= localRepository.getWords() as ArrayList<WordEntity>
+            localRepository.insertWord(wordModel)
+            getWords()
+        }
+    }
+
+    fun updateWord(wordModel: WordEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                localRepository.updateWord(wordModel)
+                getWords()
+                println("Insert succeeded")
+            } catch (e: Exception) {
+                println("Insert failed: ${e.message}")
+            }
+        }
+    }
+
+    fun deleteWord(wordModel: WordEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                localRepository.deleteWord(wordModel)
+                getWords()
+                println("Insert succeeded")
+            } catch (e: Exception) {
+                println("Insert failed: ${e.message}")
+            }
         }
     }
 

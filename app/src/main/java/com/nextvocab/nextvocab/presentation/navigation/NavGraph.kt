@@ -16,6 +16,7 @@ import com.nextvocab.nextvocab.presentation.ui.search.SearchScreen
 import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.detail.CardDetailScreen
+import com.nextvocab.nextvocab.presentation.ui.study.Study
 
 @Composable
 fun NavGraph(
@@ -35,6 +36,9 @@ fun NavGraph(
         }
         composable(route = NavigationItem.FrontSide.route) {
             FrontSideScreen(navController, viewModel)
+        }
+        composable(route = NavigationItem.Study.route) {
+            Study(navController = navController, sharedViewModel = viewModel)
         }
         composable(
             route = NavigationItem.Meanings.route,

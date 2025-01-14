@@ -21,6 +21,7 @@ class SharedViewModel @Inject constructor(
     private val repository: DictionaryRepository,
     private val localRepository: WordsRepository
 ) : ViewModel() {
+
     init {
         getWords()
     }

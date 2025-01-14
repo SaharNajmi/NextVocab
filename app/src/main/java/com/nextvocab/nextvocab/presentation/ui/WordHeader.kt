@@ -19,7 +19,8 @@ import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
 fun WordHeader(
-    name: String, partOfSpeak: String,
+    name: String,
+    partOfSpeak: String,
     onCancelClick: () -> Unit,
 ) {
     Row(

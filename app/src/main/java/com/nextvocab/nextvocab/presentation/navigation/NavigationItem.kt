@@ -7,6 +7,7 @@ sealed class NavigationItem(val route: String) {
     data object Examples : NavigationItem(Screen.EXAMPLE.name)
     data object Search : NavigationItem(Screen.SEARCH.name)
     data object Detail : NavigationItem(Screen.DETAIL.name)
+    data object Study : NavigationItem(Screen.STUDY.name)
 }
 
 
@@ -16,5 +17,6 @@ enum class Screen {
     MEANING,
     EXAMPLE,
     SEARCH,
-    DETAIL
+    DETAIL,
+    STUDY
 }

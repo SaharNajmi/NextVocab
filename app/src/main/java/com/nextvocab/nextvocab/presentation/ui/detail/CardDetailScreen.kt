@@ -26,20 +26,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
 fun CardDetailScreen(
-    navController: NavController,
     wordName: String,
     sharedViewModel: SharedViewModel,
-    detailViewModel: WordDetailViewModel
+    detailViewModel: WordDetailViewModel,
+    goHome:()->Unit
 ) {
     val word = detailViewModel.getWordById(wordName).collectAsStateWithLifecycle(null)
     word.value?.let { it ->
@@ -60,7 +58,7 @@ fun CardDetailScreen(
         ) {
             WordHeader(name = it.name, partOfSpeak = it.partOfSpeak,
                 onCancelClick = {
-                    navController.navigate(NavigationItem.Home)
+                    goHome()
                 })
 
             Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -103,7 +101,7 @@ fun CardDetailScreen(
                             )
                         }, examples = examples.map { ExampleModel(example = it, isCheck = true) })
                         sharedViewModel.updateWord(newItem)
-                        navController.navigate(NavigationItem.Home)
+                       goHome()
                     }
                 ) {
                     Text("Edit")
@@ -116,7 +114,7 @@ fun CardDetailScreen(
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
                         sharedViewModel.deleteWord(it)
-                        navController.navigate(NavigationItem.Home)
+                     goHome()
                     }
                 ) {
                     Text("Delete")

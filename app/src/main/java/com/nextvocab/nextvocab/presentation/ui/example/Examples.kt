@@ -53,9 +53,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ExampleSelectionScreen(
-    navController: NavController,
     sharedViewModel: SharedViewModel,
     exampleViewModel: ExampleViewModel,
+    onBackClick:()->Unit,
+    onCancelClick:()->Unit
 ) {
     val wordDefinition=sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
     var items by rememberSaveable {
@@ -78,7 +79,7 @@ fun ExampleSelectionScreen(
             IconButton(
                 onClick = {
                     exampleViewModel.examples = items
-                    navController.popBackStack()
+                   onBackClick()
                 }
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
@@ -88,7 +89,7 @@ fun ExampleSelectionScreen(
                 onCancelClick = {
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.Home)
+                  onCancelClick()
                 })
         }
 
@@ -186,7 +187,7 @@ fun ExampleSelectionScreen(
                     }
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.Home)
+                  onCancelClick()
                 }
             ) {
                 Text("ADD")

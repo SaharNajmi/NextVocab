@@ -29,8 +29,8 @@ import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
 fun Study(
-    navController: NavController,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel,
+    onBackClick:()->Unit
 ) {
     val words by sharedViewModel.getWords().collectAsStateWithLifecycle(emptyList())
 
@@ -55,7 +55,7 @@ fun Study(
     ) {
         WordHeader(name = frontCard.name, partOfSpeak = frontCard.partOfSpeak,
             onCancelClick = {
-                navController.navigate(NavigationItem.Home)
+                onBackClick()
             })
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))

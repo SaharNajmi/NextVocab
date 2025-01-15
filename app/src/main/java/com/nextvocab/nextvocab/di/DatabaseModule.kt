@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.nextvocab.nextvocab.data.local.database.AppDatabase
 import com.nextvocab.nextvocab.data.local.database.WordDao
+import com.nextvocab.nextvocab.data.mapper.WordDefinitionMapper
+import com.nextvocab.nextvocab.data.remote.ApiService
 import com.nextvocab.nextvocab.data.repository.WordsRepositoryImpl
 import com.nextvocab.nextvocab.domain.repository.WordsRepository
 import dagger.Module
@@ -32,9 +34,13 @@ object DatabaseModule {
     fun provideWordDao(db: AppDatabase): WordDao {
         return db.wordDao()
     }
-
     @Provides
-    fun wordsRepository(wordDao: WordDao): WordsRepository {
-        return WordsRepositoryImpl(wordDao)
+    @Singleton
+    fun provideWordsRepository(
+        apiService: ApiService,
+        wordMapper: WordDefinitionMapper,
+        wordDao: WordDao
+    ): WordsRepository {
+        return WordsRepositoryImpl(apiService, wordMapper, wordDao)
     }
 }

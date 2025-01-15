@@ -1,9 +1,7 @@
 package com.nextvocab.nextvocab.di
 
-import com.nextvocab.nextvocab.data.remote.DictionaryApiService
+import com.nextvocab.nextvocab.data.remote.ApiService
 import com.nextvocab.nextvocab.data.mapper.WordDefinitionMapper
-import com.nextvocab.nextvocab.data.repository.DictionaryRepositoryImpl
-import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,12 +14,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 object AppModule {
 
     @Provides
-    fun provideDictionaryApiService(): DictionaryApiService {
+    fun provideDictionaryApiService(): ApiService {
         return Retrofit.Builder()
             .baseUrl("https://api.dictionaryapi.dev/api/v2/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(DictionaryApiService::class.java)
+            .create(ApiService::class.java)
     }
 
     @Provides
@@ -29,11 +27,4 @@ object AppModule {
         return WordDefinitionMapper()
     }
 
-    @Provides
-    fun provideDictionaryRepository(
-        apiService: DictionaryApiService,
-        wordMapper:WordDefinitionMapper
-    ): DictionaryRepository {
-        return DictionaryRepositoryImpl(apiService,wordMapper)
-    }
 }

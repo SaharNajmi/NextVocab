@@ -2,12 +2,30 @@ package com.nextvocab.nextvocab.data.repository
 
 import com.nextvocab.nextvocab.data.local.database.WordDao
 import com.nextvocab.nextvocab.data.local.entities.WordEntity
+import com.nextvocab.nextvocab.data.mapper.WordDefinitionMapper
+import com.nextvocab.nextvocab.data.remote.ApiService
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.domain.model.Word
 import com.nextvocab.nextvocab.domain.repository.WordsRepository
+import javax.inject.Inject
 
-class WordsRepositoryImpl(private val wordDao: WordDao) : WordsRepository {
+class WordsRepositoryImpl @Inject constructor(
+    private val apiService: ApiService,
+    private val wordMapper: WordDefinitionMapper,
+    private val wordDao: WordDao
+) : WordsRepository {
+
+    override suspend fun getWordDefinition(word: String): Result<Word> {
+        return try {
+            val serviceWordDefinition = apiService.getWordDefinition(word)
+            val domain = wordMapper.mapToDomain(serviceWordDefinition[0])
+            Result.success(domain)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun getWords(): List<Word> {
         return wordDao.getWords().map { it.toWord() }
     }

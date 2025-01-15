@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.domain.model.Word
-import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import com.nextvocab.nextvocab.domain.repository.WordsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,8 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
-    private val repository: DictionaryRepository,
-    private val wordsRepository: WordsRepository
+    private val repository: WordsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<Loadable<Word>?>(null)
@@ -32,7 +30,7 @@ class SharedViewModel @Inject constructor(
     val meanings: List<String> get() = _meanings
 
     fun getWords() = flow {
-        emit(wordsRepository.getWords())
+        emit(repository.getWords())
     }
 
     fun addMeanings(meanings: List<String>) {
@@ -53,14 +51,14 @@ class SharedViewModel @Inject constructor(
 
     fun insertWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
-            wordsRepository.insertWord(wordModel)
+            repository.insertWord(wordModel)
         }
     }
 
     fun updateWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                wordsRepository.updateWord(wordModel)
+                repository.updateWord(wordModel)
                 println("Insert succeeded")
             } catch (e: Exception) {
                 println("Insert failed: ${e.message}")
@@ -71,7 +69,7 @@ class SharedViewModel @Inject constructor(
     fun deleteWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                wordsRepository.deleteWord(wordModel)
+                repository.deleteWord(wordModel)
                 println("Insert succeeded")
             } catch (e: Exception) {
                 println("Insert failed: ${e.message}")

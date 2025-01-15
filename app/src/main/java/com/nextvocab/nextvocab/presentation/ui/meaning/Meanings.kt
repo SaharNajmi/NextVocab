@@ -19,7 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -38,9 +38,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -52,9 +53,11 @@ fun MeaningSelectionScreen(
     navController: NavController,
     sharedViewModel: SharedViewModel,
 ) {
+
+    val wordDefinition=sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
     var items by rememberSaveable {
         mutableStateOf(
-            sharedViewModel.wordDefinition?.meaning
+            wordDefinition.value?.meaning
         )
     }
 
@@ -68,14 +71,17 @@ fun MeaningSelectionScreen(
             .background(BackColor)
             .padding(18.dp)
     ) {
-        WordHeader(name = sharedViewModel.wordDefinition!!.word,
-            partOfSpeak = sharedViewModel.wordDefinition!!.partOfSpeak,
-            onCancelClick = {
-                sharedViewModel.resetWordDefinition()
-                navController.navigate(Screen.HOME.name)
-            })
+        sharedViewModel.wordDefinition.collectAsStateWithLifecycle().value?.run {
+            WordHeader(name = name,
+                partOfSpeak = partOfSpeak,
+                onCancelClick = {
+                    sharedViewModel.resetWordDefinition()
+                    navController.navigate(NavigationItem.Home)
+                })
+        }
 
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -155,7 +161,7 @@ fun MeaningSelectionScreen(
                 onClick = {
                     val meanings = items?.filter { it.isCheck }?.map { it.meaning }
                     sharedViewModel.addMeanings(meanings ?: listOf())
-                    navController.navigate(Screen.EXAMPLE.name)
+                    navController.navigate(NavigationItem.Examples)
                 }
             ) {
                 Text("Next")

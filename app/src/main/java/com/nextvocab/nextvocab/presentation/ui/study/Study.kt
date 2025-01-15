@@ -20,8 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.nextvocab.nextvocab.presentation.navigation.Screen
+import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -31,13 +32,14 @@ fun Study(
     navController: NavController,
     sharedViewModel: SharedViewModel
 ) {
-    val words = sharedViewModel.words
+    val words by sharedViewModel.getWords().collectAsStateWithLifecycle(emptyList())
+
     var count by remember { mutableStateOf(0) }
-    var frontCard by remember { mutableStateOf(words.value[count]) }
+    var frontCard by remember { mutableStateOf(words[count]) }
 
-    val formattedMeaning = frontCard.meaning?.joinToString("\n") { "* $it" }
+    val formattedMeaning = frontCard.meaning.joinToString("\n") { "* $it" }
 
-    val formattedExample = frontCard.example?.mapIndexed { index, item ->
+    val formattedExample = frontCard.examples.mapIndexed { index, item ->
         "${index + 1}. $item"
     }?.joinToString("\n")
 
@@ -51,9 +53,9 @@ fun Study(
             .background(BackColor)
             .padding(start = 12.dp, end = 12.dp, top = 24.dp),
     ) {
-        WordHeader(name = frontCard.word, partOfSpeak = frontCard.partOfSpeak,
+        WordHeader(name = frontCard.name, partOfSpeak = frontCard.partOfSpeak,
             onCancelClick = {
-                navController.navigate(Screen.HOME.name)
+                navController.navigate(NavigationItem.Home)
             })
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -94,8 +96,8 @@ fun Study(
                 }
                 Button(modifier = Modifier.padding(4.dp),
                     onClick = {
-                        if (words.value.size > count)
-                            frontCard = words.value[count++]
+                        if (words.size > count)
+                            frontCard = words[count++]
 
                     }) {
                     Text("Easy")
@@ -108,7 +110,7 @@ fun Study(
                     .padding(8.dp), shape = RoundedCornerShape(12.dp),
                 onClick = {
                     showAnswer = true
-                    frontCard = words.value[count++]
+                    frontCard = words[count++]
                 }
             ) {
                 Text("Show Answer")

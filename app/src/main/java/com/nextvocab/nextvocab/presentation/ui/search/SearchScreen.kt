@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.R
 import com.nextvocab.nextvocab.data.response.Loadable
@@ -45,7 +46,11 @@ import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 @Composable
 fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
 
-    Column(modifier = Modifier.background(BackColor).padding(16.dp)) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+
+    Column(modifier = Modifier
+        .background(BackColor)
+        .padding(16.dp)) {
         val text = remember { mutableStateOf("") }
 
         Row(
@@ -81,7 +86,7 @@ fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
                 tint = Color.White,
                 modifier = Modifier
                     .clickable {
-                        viewModel.fetchWordDefinition(text.value)
+//                        viewModel.fetchWordDefinition(text.value)
                         text.value = ""
                     },
             )
@@ -105,7 +110,7 @@ fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
                 .verticalScroll(rememberScrollState())
         ) {
 
-            when (val result = viewModel.uiState ) {
+            when (val result = uiState.value) {
                 is Loadable.Loading -> {
                     CircularProgressIndicator()
                 }
@@ -115,7 +120,7 @@ fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         Text(
-                            text = wordDefinition.word,
+                            text = wordDefinition.name,
                             color = Color.Magenta,
                             fontSize = 18.sp,
                         )
@@ -126,7 +131,7 @@ fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(text = "EXAMPLES")
-                        ItemRowList(examples = wordDefinition.example)
+                        ItemRowList(examples = wordDefinition.examples)
                     }
                 }
 
@@ -144,7 +149,7 @@ fun SearchScreen(navController: NavController, viewModel: SharedViewModel) {
 }
 
 @Composable
-fun <T>ItemRowList(examples: List<T>?) {
+fun <T> ItemRowList(examples: List<T>?) {
     Column(modifier = Modifier.padding(16.dp)) {
         examples?.forEach { example ->
             Text(text = example.toString())

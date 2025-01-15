@@ -39,14 +39,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.nextvocab.nextvocab.data.local.entities.WordEntity
 import com.nextvocab.nextvocab.domain.model.ExampleModel
+import com.nextvocab.nextvocab.domain.model.MeaningModel
+import com.nextvocab.nextvocab.domain.model.Word
 import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
-import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,11 +57,14 @@ fun ExampleSelectionScreen(
     sharedViewModel: SharedViewModel,
     exampleViewModel: ExampleViewModel,
 ) {
+    val wordDefinition=sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
     var items by rememberSaveable {
         mutableStateOf(
-            exampleViewModel.examples ?: sharedViewModel.wordDefinition?.example
+            exampleViewModel.examples ?: wordDefinition.value?.examples
         )
     }
+
+
     var newExample by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -78,12 +83,12 @@ fun ExampleSelectionScreen(
             ) {
                 Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
             }
-            WordHeader(name = sharedViewModel.wordDefinition!!.word,
-                partOfSpeak = sharedViewModel.wordDefinition!!.partOfSpeak,
+            WordHeader(name = wordDefinition.value!!.name,
+                partOfSpeak = wordDefinition.value!!.partOfSpeak,
                 onCancelClick = {
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.Home.route)
+                    navController.navigate(NavigationItem.Home)
                 })
         }
 
@@ -146,10 +151,10 @@ fun ExampleSelectionScreen(
         Column {
             ShowExamples(
                 modifier = Modifier.weight(1f),
-                items = items!!,
+                items = items?: listOf(),
                 state = listState
             ) { isChecked, checkedIndex ->
-                items = items!!.mapIndexed { index, exampleModel ->
+                items = items?.mapIndexed { index, exampleModel ->
                     if (index == checkedIndex)
                         exampleModel.copy(isCheck = isChecked)
                     else
@@ -163,19 +168,25 @@ fun ExampleSelectionScreen(
                     .padding(16.dp),
                 onClick = {
                     val examples = items?.filter { it.isCheck }?.map { it.example }
-                    sharedViewModel.wordDefinition?.run {
+                        ?.map { ExampleModel(example = it, isCheck = false) }
+                    sharedViewModel.wordDefinition.value?.run {
                         sharedViewModel.insertWord(
-                            WordEntity(
-                                word = word,
-                                meaning = sharedViewModel.meanings,
+                            Word(
+                                name = name,
+                                meaning = sharedViewModel.meanings.map {
+                                    MeaningModel(
+                                        meaning = it,
+                                        isCheck = true
+                                    )
+                                },
                                 partOfSpeak = partOfSpeak,
-                                example = examples
+                                examples = examples ?: listOf()
                             )
                         )
                     }
                     sharedViewModel.resetWordDefinition()
                     exampleViewModel.resetYourSteps()
-                    navController.navigate(NavigationItem.Home.route)
+                    navController.navigate(NavigationItem.Home)
                 }
             ) {
                 Text("ADD")

@@ -2,7 +2,7 @@ package com.nextvocab.nextvocab.data.utils
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.Word
 
 inline fun <reified T> parseJsonToModel(json: String): T? {
     return try {
@@ -13,6 +13,6 @@ inline fun <reified T> parseJsonToModel(json: String): T? {
     }
 }
 
-fun toDomainModel(json: String): DomainWordDefinition? {
-    return parseJsonToModel<DomainWordDefinition>(json)
+fun toDomainModel(json: String): Word? {
+    return parseJsonToModel<Word>(json)
 }

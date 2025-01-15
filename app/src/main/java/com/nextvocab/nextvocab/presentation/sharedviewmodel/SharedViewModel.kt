@@ -1,76 +1,66 @@
 package com.nextvocab.nextvocab.presentation.sharedviewmodel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nextvocab.nextvocab.data.local.entities.WordEntity
 import com.nextvocab.nextvocab.data.response.Loadable
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.Word
 import com.nextvocab.nextvocab.domain.repository.DictionaryRepository
 import com.nextvocab.nextvocab.domain.repository.WordsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
     private val repository: DictionaryRepository,
-    private val localRepository: WordsRepository
+    private val wordsRepository: WordsRepository
 ) : ViewModel() {
 
-    init {
-        getWords()
-    }
+    private val _uiState = MutableStateFlow<Loadable<Word>?>(null)
+    val uiState: StateFlow<Loadable<Word>?> = _uiState.asStateFlow()
 
-    var uiState by mutableStateOf<Loadable<DomainWordDefinition>?>(null)
-        private set
-    var wordDefinition by mutableStateOf<DomainWordDefinition?>(null)
-        private set
+
+    private val _wordDefinition = MutableStateFlow<Word?>(null)
+    val wordDefinition = _wordDefinition.asStateFlow()
 
     private val _meanings = ArrayList<String>()
     val meanings: List<String> get() = _meanings
 
-    private val _words = mutableStateOf(ArrayList<WordEntity>())
-    val words: MutableState<ArrayList<WordEntity>> get() = _words
+    fun getWords() = flow {
+        emit(wordsRepository.getWords())
+    }
 
     fun addMeanings(meanings: List<String>) {
         _meanings.addAll(meanings)
     }
 
     fun fetchWordDefinition(word: String) {
-        uiState = Loadable.Loading
+        _uiState.value = Loadable.Loading
         viewModelScope.launch(Dispatchers.IO) {
             repository.getWordDefinition(word).fold(onFailure = {
-                uiState = Loadable.Error(it.message ?: "error")
+                _uiState.value = Loadable.Error(it.message ?: "error")
             }, onSuccess = {
-                uiState = Loadable.Success(it)
-                wordDefinition = it
+                _uiState.value = Loadable.Success(it)
+                _wordDefinition.value = it
             })
         }
     }
 
-    private fun getWords() {
+    fun insertWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
-            _words.value = localRepository.getWords() as ArrayList<WordEntity>
+            wordsRepository.insertWord(wordModel)
         }
     }
 
-    fun insertWord(wordModel: WordEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            localRepository.insertWord(wordModel)
-            getWords()
-        }
-    }
-
-    fun updateWord(wordModel: WordEntity) {
+    fun updateWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                localRepository.updateWord(wordModel)
-                getWords()
+                wordsRepository.updateWord(wordModel)
                 println("Insert succeeded")
             } catch (e: Exception) {
                 println("Insert failed: ${e.message}")
@@ -78,19 +68,19 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    fun deleteWord(wordModel: WordEntity) {
+    fun deleteWord(wordModel: Word) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                localRepository.deleteWord(wordModel)
-                getWords()
+                wordsRepository.deleteWord(wordModel)
                 println("Insert succeeded")
             } catch (e: Exception) {
                 println("Insert failed: ${e.message}")
             }
         }
     }
+
 
     fun resetWordDefinition() {
-        uiState = Loadable.Canceled
+        _uiState.value = Loadable.Canceled
     }
 }

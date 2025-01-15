@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,10 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.nextvocab.nextvocab.data.response.Loadable
 import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
-import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.LoadingButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -35,6 +36,7 @@ import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
 @Composable
 fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
     val text = remember { mutableStateOf("") }
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -46,7 +48,7 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
         Button(colors = ButtonDefaults.buttonColors(
             containerColor = BackColor
         ), onClick = {
-            navController.navigate(Screen.HOME.name)
+            navController.navigate(NavigationItem.Home)
         }) { Text("Cancel", style = TextStyle(color = Color.White)) }
 
         Column(
@@ -97,20 +99,22 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
             LoadingButton(
                 text = "Next",
                 modifier = Modifier.fillMaxWidth(),
-                isLoading = viewModel.uiState is Loadable.Loading,
+                isLoading = false,
                 onClick = {
                     if (text.value.isNotEmpty()) {
                         viewModel.fetchWordDefinition(text.value)
                     }
                 })
 
-            when (val result = viewModel.uiState) {
+            when (uiState.value) {
                 is Loadable.Error -> {
                     Log.e("ERROR", "We can't find this, try another one")
                 }
 
                 is Loadable.Success -> {
-                    navController.navigate(NavigationItem.Meanings.route)
+                    LaunchedEffect(Unit) {
+                        navController.navigate(NavigationItem.Meanings)
+                    }
                 }
 
                 else -> {}

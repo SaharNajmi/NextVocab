@@ -25,10 +25,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.nextvocab.nextvocab.data.local.entities.WordEntity
+import com.nextvocab.nextvocab.domain.model.ExampleModel
+import com.nextvocab.nextvocab.domain.model.MeaningModel
 import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
-import com.nextvocab.nextvocab.presentation.navigation.Screen
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.WordHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -36,83 +37,91 @@ import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 @Composable
 fun CardDetailScreen(
     navController: NavController,
-    item: WordEntity,
-    sharedViewModel: SharedViewModel
+    wordName: String,
+    sharedViewModel: SharedViewModel,
+    detailViewModel: WordDetailViewModel
 ) {
-    val formattedMeaning = item.meaning?.joinToString("\n") { "* $it" }
+    val word = detailViewModel.getWordById(wordName).collectAsStateWithLifecycle(null)
+    word.value?.let { it ->
+        val formattedMeaning = it.meaning.map { it.meaning }.joinToString("\n") { "* $it" }
 
-    val formattedExample = item.example?.mapIndexed { index, item ->
-        "${index + 1}. $item"
-    }?.joinToString("\n")
-    val formattedText = "$formattedMeaning\n\n$formattedExample"
-    var textFieldValue by remember { mutableStateOf(formattedText) }
+        val formattedExample = it.examples.map { it.example }.mapIndexed { index, item ->
+            "${index + 1}. $item"
+        }.joinToString("\n")
+        val formattedText = "$formattedMeaning\n\n$formattedExample"
+        var textFieldValue by remember { mutableStateOf(formattedText) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .background(BackColor)
-            .padding(start = 12.dp, end = 12.dp, top = 24.dp),
-    ) {
-        WordHeader(name = item.word, partOfSpeak = item.partOfSpeak,
-            onCancelClick = {
-                navController.navigate(Screen.HOME.name)
-            })
-
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
-        Spacer(modifier = Modifier.height(12.dp))
-
-        TextField(
+        Column(
             modifier = Modifier
-                .fillMaxHeight()
                 .fillMaxWidth()
-                .weight(1f),
-            textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.Start),
-            colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedContainerColor = Color.LightGray,
-                unfocusedContainerColor = Color.LightGray,
-            ),
-            shape = RoundedCornerShape(6.dp),
-            value = textFieldValue,
-            onValueChange = { textFieldValue = it })
+                .fillMaxHeight()
+                .background(BackColor)
+                .padding(start = 12.dp, end = 12.dp, top = 24.dp),
+        ) {
+            WordHeader(name = it.name, partOfSpeak = it.partOfSpeak,
+                onCancelClick = {
+                    navController.navigate(NavigationItem.Home)
+                })
 
-        Row {
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = 12.dp, end = 4.dp),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    Regex
-                    val meanings = textFieldValue.lines()
-                        .filter { it.startsWith("*") }
-                        .map { it.removePrefix("*").trim() }
-                    val examples = textFieldValue.lines()
-                        .filter { it.matches(Regex("""\d+\..*""")) }
-                        .map { it.replaceFirst(Regex("""^\d+\."""), "").trim() }
-                    val newItem = item.copy(meaning = meanings, example = examples)
-                    sharedViewModel.updateWord(newItem)
-                    navController.navigate(NavigationItem.Home.route)
-                }
-            ) {
-                Text("Edit")
-            }
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
+            TextField(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(bottom = 12.dp, start = 4.dp),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    sharedViewModel.deleteWord(item)
-                    navController.navigate(NavigationItem.Home.route)
+                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .weight(1f),
+                textStyle = TextStyle(fontSize = 18.sp, textAlign = TextAlign.Start),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedContainerColor = Color.LightGray,
+                    unfocusedContainerColor = Color.LightGray,
+                ),
+                shape = RoundedCornerShape(6.dp),
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it })
+
+            Row {
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(bottom = 12.dp, end = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        Regex
+                        val meanings = textFieldValue.lines()
+                            .filter { it.startsWith("*") }
+                            .map { it.removePrefix("*").trim() }
+                        val examples = textFieldValue.lines()
+                            .filter { it.matches(Regex("""\d+\..*""")) }
+                            .map { it.replaceFirst(Regex("""^\d+\."""), "").trim() }
+                        val newItem = it.copy(meaning = meanings.map {
+                            MeaningModel(
+                                meaning = it,
+                                isCheck = true
+                            )
+                        }, examples = examples.map { ExampleModel(example = it, isCheck = true) })
+                        sharedViewModel.updateWord(newItem)
+                        navController.navigate(NavigationItem.Home)
+                    }
+                ) {
+                    Text("Edit")
                 }
-            ) {
-                Text("Delete")
+
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(bottom = 12.dp, start = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    onClick = {
+                        sharedViewModel.deleteWord(it)
+                        navController.navigate(NavigationItem.Home)
+                    }
+                ) {
+                    Text("Delete")
+                }
             }
         }
-
     }
 }

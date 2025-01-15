@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,85 +28,81 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.google.gson.Gson
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nextvocab.nextvocab.R
-import com.nextvocab.nextvocab.data.local.entities.WordEntity
-import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
+import com.nextvocab.nextvocab.domain.model.Word
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.GradientButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor2
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor1
 import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor2
-import java.net.URLEncoder
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel,
+    onStudyClick: () -> Unit,
+    addNewCardClick: () -> Unit,
+    wordItemClick: (word: String) -> Unit
 ) {
     var searchInput by remember { mutableStateOf("") }
-    val items = sharedViewModel.words
 
-        Column(
+    val items by sharedViewModel.getWords().collectAsStateWithLifecycle(emptyList())
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BackColor)
+            .padding(start = 12.dp, end = 12.dp, top = 24.dp),
+    ) {
+        GradientButton(
+            text = stringResource(id = R.string.study),
+            gradient = gradientPurpleColor1,
             modifier = Modifier
-                .fillMaxSize()
-                .background(BackColor)
-                .padding(start = 12.dp, end = 12.dp, top = 24.dp),
-        ) {
-            GradientButton(
-                text = stringResource(id = R.string.study),
-                gradient = gradientPurpleColor1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(86.dp)
-                    .padding(top = 4.dp),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    navController.navigate(NavigationItem.Study.route)
-                })
-            GradientButton(
-                text = stringResource(id = R.string.add_a_new_card),
-                gradient = gradientPurpleColor2,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(86.dp)
-                    .padding(top = 4.dp),
-                shape = RoundedCornerShape(12.dp),
-                onClick = {
-                    navController.navigate(NavigationItem.FrontSide.route)
-                }
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            SearchBar(
-                query = searchInput,
-                onQueryChange = { newQuery -> searchInput = newQuery },
-                onCloseSearch = {
-                    searchInput = ""
-                    navController.popBackStack()
-                }
-            )
-
-            val filteredItems = if (searchInput.isEmpty()) {
-                items.value
-            } else {
-                items.value.filter { it.word.contains(searchInput) }
+                .fillMaxWidth()
+                .height(86.dp)
+                .padding(top = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            onClick = {
+                onStudyClick()
+            })
+        GradientButton(
+            text = stringResource(id = R.string.add_a_new_card),
+            gradient = gradientPurpleColor2,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(86.dp)
+                .padding(top = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            onClick = {
+                addNewCardClick()
             }
-            WordsList(filteredItems) { word ->
-                val jsonString =
-                    URLEncoder.encode(Gson().toJson(word), "UTF-8")
-                        .replace("+", "%20")
-                navController.navigate("${NavigationItem.Detail.route}/${jsonString}")
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        SearchBar(
+            query = searchInput,
+            onQueryChange = { newQuery -> searchInput = newQuery },
+            onCloseSearch = {
+                searchInput = ""
             }
+        )
+
+        val filteredItems = if (searchInput.isEmpty()) {
+            items
+        } else {
+            items.filter { it.name.contains(searchInput) }
+        }
+        WordsList(filteredItems) { word ->
+            wordItemClick(word.name)
         }
     }
+}
 
 @Composable
 private fun WordsList(
-    words: List<WordEntity>,
-    onEditClicked: (WordEntity) -> Unit
+    words: List<Word>,
+    onEditClicked: (Word) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)) {
         items(words.size) { index ->
@@ -120,7 +114,7 @@ private fun WordsList(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = words[index].word,
+                    text = words[index].name,
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .padding(12.dp),

@@ -1,14 +1,15 @@
 package com.nextvocab.nextvocab.data.mapper
 
 import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
-import com.nextvocab.nextvocab.domain.model.DomainWordDefinition
+import com.nextvocab.nextvocab.domain.model.Word
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 
-class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition> {
-    override fun mapToDomain(entity: WordDefinitionResponse): DomainWordDefinition {
-        return DomainWordDefinition(
-            word = "${entity.word}: ${
+class WordDefinitionMapper : Mapper<WordDefinitionResponse, Word> {
+    override fun mapToDomain(entity: WordDefinitionResponse): Word {
+        return Word(
+
+            name = "${entity.word}: ${
                 entity.phonetic ?: entity.phonetics.mapNotNull { it.text }
                     .joinToString()
             }",
@@ -21,13 +22,13 @@ class WordDefinitionMapper : Mapper<WordDefinitionResponse, DomainWordDefinition
                 }
             },
             partOfSpeak = entity.meanings.joinToString { it.partOfSpeech },
-            example = entity.meanings.flatMap { meaning ->
-            meaning.definitions.mapNotNull { definition ->
-                definition.example?.let {
-                    ExampleModel(example = it, isCheck = false)
+            examples = entity.meanings.flatMap { meaning ->
+                meaning.definitions.mapNotNull { definition ->
+                    definition.example?.let {
+                        ExampleModel(example = it, isCheck = false)
+                    }
                 }
             }
-        }
         )
     }
 }

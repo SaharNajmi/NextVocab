@@ -1,69 +1,90 @@
 package com.nextvocab.nextvocab.presentation.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.google.gson.Gson
-import com.nextvocab.nextvocab.data.local.entities.WordEntity
+import androidx.navigation.toRoute
+import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
+import com.nextvocab.nextvocab.presentation.ui.detail.CardDetailScreen
+import com.nextvocab.nextvocab.presentation.ui.detail.WordDetailViewModel
 import com.nextvocab.nextvocab.presentation.ui.example.ExampleSelectionScreen
+import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
 import com.nextvocab.nextvocab.presentation.ui.front.FrontSideScreen
 import com.nextvocab.nextvocab.presentation.ui.home.HomeScreen
 import com.nextvocab.nextvocab.presentation.ui.meaning.MeaningSelectionScreen
 import com.nextvocab.nextvocab.presentation.ui.search.SearchScreen
-import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
-import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
-import com.nextvocab.nextvocab.presentation.ui.detail.CardDetailScreen
+import com.nextvocab.nextvocab.presentation.ui.searchb.SearchScreenTest
 import com.nextvocab.nextvocab.presentation.ui.study.Study
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     viewModel: SharedViewModel,
+    detailViewModel: WordDetailViewModel,
     exampleViewModel: ExampleViewModel
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationItem.Home.route
+        startDestination = NavigationItem.Home
     ) {
-        composable(route = NavigationItem.Home.route) {
-            HomeScreen(navController = navController, sharedViewModel = viewModel)
+        composable<NavigationItem.Home> {
+            HomeScreen(sharedViewModel = viewModel(LocalContext.current as ComponentActivity),
+                onStudyClick = {
+                    navController.navigate(NavigationItem.Study)
+                },
+                addNewCardClick = {
+                    navController.navigate(NavigationItem.FrontSide)
+                }
+            ) { wordId ->
+                val route = NavigationItem.Detail(wordId)
+                navController.navigate(route)
+            }
         }
-        composable(route = NavigationItem.Search.route) {
-            SearchScreen(navController = navController, viewModel = viewModel)
+        composable<NavigationItem.Search> {
+            SearchScreen(
+                navController = navController,
+                viewModel = viewModel(LocalContext.current as ComponentActivity)
+            )
         }
-        composable(route = NavigationItem.FrontSide.route) {
+        composable<NavigationItem.FrontSide> {
             FrontSideScreen(navController, viewModel)
         }
-        composable(route = NavigationItem.Study.route) {
-            Study(navController = navController, sharedViewModel = viewModel)
+        composable<NavigationItem.Test> {
+            SearchScreenTest()
         }
-        composable(
-            route = NavigationItem.Meanings.route,
-        ) {
+        composable<NavigationItem.Study> {
+            Study(
+                navController = navController,
+                sharedViewModel = viewModel
+            )
+        }
+        composable<NavigationItem.Meanings> {
             MeaningSelectionScreen(
                 navController = navController,
-                sharedViewModel = viewModel,
+                sharedViewModel =viewModel
             )
         }
 
-        composable(
-            route = NavigationItem.Examples.route,
-        ) {
+        composable<NavigationItem.Examples> {
             ExampleSelectionScreen(
                 navController = navController,
-                sharedViewModel = viewModel,
+                sharedViewModel = viewModel(LocalContext.current as ComponentActivity),
                 exampleViewModel = exampleViewModel
             )
         }
-        composable(route = "${NavigationItem.Detail.route}/{item}",
-            arguments = listOf(navArgument("item") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val itemJson = backStackEntry.arguments?.getString("item")
-            val item = Gson().fromJson(itemJson, WordEntity::class.java)
-            CardDetailScreen(navController = navController, item = item, sharedViewModel = viewModel)
+
+        composable<NavigationItem.Detail> { backStackEntry ->
+            val route = backStackEntry.toRoute<NavigationItem.Detail>()
+            CardDetailScreen(
+                navController = navController,
+                wordName = route.wordName,
+                sharedViewModel = viewModel,
+                detailViewModel=detailViewModel
+            )
         }
     }
 }

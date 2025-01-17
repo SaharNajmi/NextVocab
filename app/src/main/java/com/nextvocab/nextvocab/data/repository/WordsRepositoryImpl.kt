@@ -30,6 +30,11 @@ class WordsRepositoryImpl @Inject constructor(
         return wordDao.getWords().map { it.toWord() }
     }
 
+    override suspend fun getTodayReviewWords(): List<Word> {
+        val dateToday = System.currentTimeMillis()
+        return wordDao.getTodayReviewWords(dateToday).map { it.toWord() }
+    }
+
     override suspend fun insertWord(word: Word) {
         wordDao.insertWord(word.toEntity())
     }
@@ -47,16 +52,20 @@ class WordsRepositoryImpl @Inject constructor(
     }
 }
 
-private fun WordEntity.toWord() = Word(word, meaning?.map { meaning ->
-    MeaningModel(
-        meaning = meaning, isCheck = false
-    )
-} ?: emptyList(), partOfSpeak, example?.map { example ->
-    ExampleModel(
-        example = example, isCheck = false
-    )
-} ?: emptyList())
+private fun WordEntity.toWord() = Word(word,
+    meaning?.map { meaning -> MeaningModel(meaning = meaning, isCheck = false) } ?: emptyList(),
+    partOfSpeak,
+    example?.map { example -> ExampleModel(example = example, isCheck = false) } ?: emptyList(),
+    reviewInterval, feedback, reviewDate)
 
 private fun Word.toEntity() = with(this) {
-    WordEntity(name, meaning.map { it.meaning }, partOfSpeak, examples.map { it.example })
+    WordEntity(
+        name,
+        meaning.map { it.meaning },
+        partOfSpeak,
+        examples.map { it.example },
+        reviewInterval = reviewInterval,
+        feedback = feedback,
+        reviewDate = reviewDate
+    )
 }

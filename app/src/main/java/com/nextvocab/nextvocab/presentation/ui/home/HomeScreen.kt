@@ -1,5 +1,6 @@
 package com.nextvocab.nextvocab.presentation.ui.home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -45,9 +47,11 @@ fun HomeScreen(
     addNewCardClick: () -> Unit,
     wordItemClick: (word: String) -> Unit
 ) {
+    val context = LocalContext.current
     var searchInput by remember { mutableStateOf("") }
+    val wordsToReview by sharedViewModel.getTodayReviewWords().collectAsStateWithLifecycle(initialValue = emptyList())
 
-    val items by sharedViewModel.getWords().collectAsStateWithLifecycle(emptyList())
+    val items = sharedViewModel.words.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -64,7 +68,11 @@ fun HomeScreen(
                 .padding(top = 4.dp),
             shape = RoundedCornerShape(12.dp),
             onClick = {
-                onStudyClick()
+                if (wordsToReview.isNotEmpty()) {
+                    onStudyClick()
+                }else{
+                    Toast.makeText( context, "There is no cards to review for today", Toast.LENGTH_LONG).show()
+                }
             })
         GradientButton(
             text = stringResource(id = R.string.add_a_new_card),
@@ -89,9 +97,9 @@ fun HomeScreen(
         )
 
         val filteredItems = if (searchInput.isEmpty()) {
-            items
+            items.value
         } else {
-            items.filter { it.name.contains(searchInput) }
+            items.value.filter { it.name.contains(searchInput) }
         }
         WordsList(filteredItems) { word ->
             wordItemClick(word.name)

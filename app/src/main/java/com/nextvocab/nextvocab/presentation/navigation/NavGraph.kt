@@ -14,13 +14,15 @@ import com.nextvocab.nextvocab.presentation.ui.front.FrontSideScreen
 import com.nextvocab.nextvocab.presentation.ui.home.HomeScreen
 import com.nextvocab.nextvocab.presentation.ui.meaning.MeaningSelectionScreen
 import com.nextvocab.nextvocab.presentation.ui.study.Study
+import com.nextvocab.nextvocab.presentation.ui.study.StudyViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     viewModel: SharedViewModel,
     detailViewModel: WordDetailViewModel,
-    exampleViewModel: ExampleViewModel
+    exampleViewModel: ExampleViewModel,
+    studyViewModel: StudyViewModel
 ) {
     NavHost(
         navController = navController,
@@ -46,7 +48,7 @@ fun NavGraph(
 
         composable<NavigationItem.Study> {
             Study(
-                sharedViewModel = viewModel,
+                viewModel = studyViewModel,
                 onBackClick = { navController.navigate(NavigationItem.Home) }
             )
         }

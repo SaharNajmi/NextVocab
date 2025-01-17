@@ -13,6 +13,9 @@ interface WordDao {
     @Query("SELECT * FROM words ORDER BY createdDate DESC")
     suspend fun getWords(): List<WordEntity>
 
+    @Query("SELECT * FROM words WHERE reviewDate <= :dateToday")
+    suspend fun getTodayReviewWords(dateToday: Long): List<WordEntity>
+
     @Query("SELECT * FROM words WHERE word= :word")
     suspend fun getWordById(word: String): WordEntity
 

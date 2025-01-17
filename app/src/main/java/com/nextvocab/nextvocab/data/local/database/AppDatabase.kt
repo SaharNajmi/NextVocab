@@ -7,7 +7,7 @@ import com.nextvocab.nextvocab.data.local.entities.WordEntity
 import com.nextvocab.nextvocab.data.mapper.Converters
 
 
-@Database(entities = [WordEntity::class], version = 1, exportSchema = false)
+@Database(entities = [WordEntity::class], version = 3, exportSchema = true)
 @TypeConverters(Converters::class, DateConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun wordDao(): WordDao

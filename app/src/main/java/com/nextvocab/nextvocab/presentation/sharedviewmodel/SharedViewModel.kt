@@ -29,8 +29,17 @@ class SharedViewModel @Inject constructor(
     private val _meanings = ArrayList<String>()
     val meanings: List<String> get() = _meanings
 
-    fun getWords() = flow {
-        emit(repository.getWords())
+    private val _words = MutableStateFlow<List<Word>>(emptyList())
+    val words: StateFlow<List<Word>> = _words
+
+    init {
+       getWords()
+    }
+
+    private fun getWords()  {
+        viewModelScope.launch {
+            _words.value = repository.getWords()
+        }
     }
 
     fun addMeanings(meanings: List<String>) {
@@ -59,9 +68,9 @@ class SharedViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.updateWord(wordModel)
-                println("Insert succeeded")
+                println("update succeeded")
             } catch (e: Exception) {
-                println("Insert failed: ${e.message}")
+                println("update failed: ${e.message}")
             }
         }
     }
@@ -77,6 +86,9 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+     fun getTodayReviewWords()= flow<List<Word>> {
+           emit(repository.getTodayReviewWords())
+    }
 
     fun resetWordDefinition() {
         _uiState.value = Loadable.Canceled

@@ -25,18 +25,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.nextvocab.nextvocab.data.response.Loadable
-import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.LoadingButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
 
 @Composable
-fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
+fun FrontSideScreen(
+    sharedViewModel: SharedViewModel,
+    onMeaningScreen: () -> Unit,
+    onCancelClick: () -> Unit
+) {
     val text = remember { mutableStateOf("") }
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = sharedViewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -48,7 +50,7 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
         Button(colors = ButtonDefaults.buttonColors(
             containerColor = BackColor
         ), onClick = {
-            navController.navigate(NavigationItem.Home)
+            onCancelClick()
         }) { Text("Cancel", style = TextStyle(color = Color.White)) }
 
         Column(
@@ -102,7 +104,7 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
                 isLoading = false,
                 onClick = {
                     if (text.value.isNotEmpty()) {
-                        viewModel.fetchWordDefinition(text.value)
+                        sharedViewModel.fetchWordDefinition(text.value)
                     }
                 })
 
@@ -113,7 +115,7 @@ fun FrontSideScreen(navController: NavController, viewModel: SharedViewModel) {
 
                 is Loadable.Success -> {
                     LaunchedEffect(Unit) {
-                        navController.navigate(NavigationItem.Meanings)
+                        onMeaningScreen()
                     }
                 }
 

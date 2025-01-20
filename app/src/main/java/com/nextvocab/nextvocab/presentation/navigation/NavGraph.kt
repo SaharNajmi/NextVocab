@@ -6,30 +6,32 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
-import com.nextvocab.nextvocab.presentation.ui.detail.CardDetailScreen
-import com.nextvocab.nextvocab.presentation.ui.detail.WordDetailViewModel
-import com.nextvocab.nextvocab.presentation.ui.example.ExampleSelectionScreen
+import com.nextvocab.nextvocab.presentation.ui.detail.FlashCardDetailScreen
+import com.nextvocab.nextvocab.presentation.ui.detail.FlashCardDetailViewModel
+import com.nextvocab.nextvocab.presentation.ui.example.ExamplesScreen
 import com.nextvocab.nextvocab.presentation.ui.example.ExampleViewModel
 import com.nextvocab.nextvocab.presentation.ui.front.FrontSideScreen
 import com.nextvocab.nextvocab.presentation.ui.home.HomeScreen
-import com.nextvocab.nextvocab.presentation.ui.meaning.MeaningSelectionScreen
+import com.nextvocab.nextvocab.presentation.ui.home.HomeViewModel
+import com.nextvocab.nextvocab.presentation.ui.meaning.MeaningsScreen
 import com.nextvocab.nextvocab.presentation.ui.study.Study
 import com.nextvocab.nextvocab.presentation.ui.study.StudyViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    viewModel: SharedViewModel,
-    detailViewModel: WordDetailViewModel,
+    sharedViewModel: SharedViewModel,
+    detailViewModel: FlashCardDetailViewModel,
     exampleViewModel: ExampleViewModel,
-    studyViewModel: StudyViewModel
+    studyViewModel: StudyViewModel,
+    homeViewModel: HomeViewModel
 ) {
     NavHost(
         navController = navController,
         startDestination = NavigationItem.Home
     ) {
         composable<NavigationItem.Home> {
-            HomeScreen(sharedViewModel = viewModel,
+            HomeScreen(homeViewModel = homeViewModel,
                 onStudyClick = {
                     navController.navigate(NavigationItem.Study)
                 },
@@ -43,7 +45,10 @@ fun NavGraph(
         }
 
         composable<NavigationItem.FrontSide> {
-            FrontSideScreen(navController, viewModel)
+            FrontSideScreen(
+                sharedViewModel = sharedViewModel,
+                onMeaningScreen = { navController.navigate(NavigationItem.Meanings) },
+                onCancelClick = { navController.navigate(NavigationItem.Home) })
         }
 
         composable<NavigationItem.Study> {
@@ -52,16 +57,20 @@ fun NavGraph(
                 onBackClick = { navController.navigate(NavigationItem.Home) }
             )
         }
+
         composable<NavigationItem.Meanings> {
-            MeaningSelectionScreen(
-                navController = navController,
-                sharedViewModel = viewModel
+            MeaningsScreen(
+                sharedViewModel = sharedViewModel,
+                onExampleScreen = {
+                    navController.navigate(NavigationItem.Examples)
+                },
+                onCancelClick = { navController.navigate(NavigationItem.Home) }
             )
         }
 
         composable<NavigationItem.Examples> {
-            ExampleSelectionScreen(
-                sharedViewModel = viewModel,
+            ExamplesScreen(
+                sharedViewModel = sharedViewModel,
                 exampleViewModel = exampleViewModel,
                 onBackClick = { navController.popBackStack() },
                 onCancelClick = { navController.navigate(NavigationItem.Home) }
@@ -70,10 +79,9 @@ fun NavGraph(
 
         composable<NavigationItem.Detail> { backStackEntry ->
             val route = backStackEntry.toRoute<NavigationItem.Detail>()
-            CardDetailScreen(
+            FlashCardDetailScreen(
                 wordName = route.wordName,
-                sharedViewModel = viewModel,
-                detailViewModel = detailViewModel,
+                viewModel = detailViewModel,
                 goHome = { navController.navigate(NavigationItem.Home) }
             )
         }

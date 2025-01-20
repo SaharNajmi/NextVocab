@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.ui.meaning
+package com.nextvocab.nextvocab.presentation.ui.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,9 +17,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -39,54 +40,63 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
+import com.nextvocab.nextvocab.domain.model.FlashCard
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
-import com.nextvocab.nextvocab.presentation.ui.WordHeader
+import com.nextvocab.nextvocab.presentation.ui.BaseHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
 import kotlinx.coroutines.launch
 
 @Composable
-fun MeaningSelectionScreen(
-    navController: NavController,
+fun ExamplesScreen(
     sharedViewModel: SharedViewModel,
+    exampleViewModel: ExampleViewModel,
+    onBackClick:()->Unit,
+    onCancelClick:()->Unit
 ) {
-
     val wordDefinition=sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
     var items by rememberSaveable {
         mutableStateOf(
-            wordDefinition.value?.meaning
+            exampleViewModel.examples ?: wordDefinition.value?.examples
         )
     }
 
-    var newMeaning by remember { mutableStateOf("") }
+
+    var newExample by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackColor)
             .padding(18.dp)
     ) {
-        sharedViewModel.wordDefinition.collectAsStateWithLifecycle().value?.run {
-            WordHeader(name = name,
-                partOfSpeak = partOfSpeak,
+        Row {
+            IconButton(
+                onClick = {
+                    exampleViewModel.examples = items
+                   onBackClick()
+                }
+            ) {
+                Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
+            }
+            BaseHeader(name = wordDefinition.value!!.name,
+                partOfSpeak = wordDefinition.value!!.partOfSpeak,
                 onCancelClick = {
                     sharedViewModel.resetWordDefinition()
-                    navController.navigate(NavigationItem.Home)
+                    exampleViewModel.resetYourSteps()
+                  onCancelClick()
                 })
         }
 
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "MEANINGS",
+            text = "EXAMPLES",
             style = TextStyle(fontSize = 24.sp, color = Color.White),
             modifier = Modifier.align(Alignment.Start)
         )
@@ -94,24 +104,23 @@ fun MeaningSelectionScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Choose the meanings you want",
+            text = "Choose the examples you want",
             style = TextStyle(fontSize = 18.sp, color = Color.White),
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
-
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             TextField(
-                value = newMeaning,
+                value = newExample,
                 onValueChange = {
-                    newMeaning = it
+                    newExample = it
                 },
                 label = {
                     Text(
-                        "Add your meaning",
+                        "Add your example",
                         style = TextStyle(fontSize = 12.sp)
                     )
                 },
@@ -125,10 +134,10 @@ fun MeaningSelectionScreen(
                 .padding(start = 10.dp)
                 .fillMaxHeight(), onClick = {
                 items = buildList {
-                    add(MeaningModel(meaning = newMeaning, isCheck = true))
-                    addAll(items!!)
+                    add(ExampleModel(example = newExample, isCheck = true))
+                    items?.let { addAll(it) }
                 }
-                newMeaning = ""
+                newExample = ""
                 scope.launch {
                     listState.animateScrollToItem(0)
                 }
@@ -137,20 +146,18 @@ fun MeaningSelectionScreen(
                 Icon(Icons.Outlined.Add, contentDescription = "add", tint = Color.White)
             }
         }
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Column {
-            ShowMeaning(
-                modifier = Modifier.weight(1F),
-                items = items!!,
+            ShowExamples(
+                modifier = Modifier.weight(1f),
+                items = items?: listOf(),
                 state = listState
             ) { isChecked, checkedIndex ->
-                items = items!!.mapIndexed { index, meaningModel ->
+                items = items?.mapIndexed { index, exampleModel ->
                     if (index == checkedIndex)
-                        meaningModel.copy(isCheck = isChecked)
+                        exampleModel.copy(isCheck = isChecked)
                     else
-                        meaningModel
+                        exampleModel
                 }
             }
 
@@ -159,23 +166,40 @@ fun MeaningSelectionScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 onClick = {
-                    val meanings = items?.filter { it.isCheck }?.map { it.meaning }
-                    sharedViewModel.addMeanings(meanings ?: listOf())
-                    navController.navigate(NavigationItem.Examples)
+                    val examples = items?.filter { it.isCheck }?.map { it.example }
+                        ?.map { ExampleModel(example = it, isCheck = false) }
+                    sharedViewModel.wordDefinition.value?.run {
+                        sharedViewModel.insertWord(
+                            FlashCard(
+                                name = name,
+                                meaning = sharedViewModel.meanings.map {
+                                    MeaningModel(
+                                        meaning = it,
+                                        isCheck = true
+                                    )
+                                },
+                                partOfSpeak = partOfSpeak,
+                                examples = examples ?: listOf()
+                            )
+                        )
+                    }
+                    sharedViewModel.resetWordDefinition()
+                    exampleViewModel.resetYourSteps()
+                  onCancelClick()
                 }
             ) {
-                Text("Next")
+                Text("ADD")
             }
         }
     }
 }
 
 @Composable
-fun ShowMeaning(
+fun ShowExamples(
     modifier: Modifier = Modifier,
-    items: List<MeaningModel>,
+    items: List<ExampleModel>,
     state: LazyListState,
-    onCheckedChange: (Boolean, Int) -> Unit,
+    onCheckedChange: (Boolean, Int) -> Unit
 ) {
     LazyColumn(modifier = modifier, state) {
         items(items.size, key = { items[it].id }) { index ->
@@ -190,7 +214,7 @@ fun ShowMeaning(
                     }
                 )
                 Text(
-                    text = items[index].meaning,
+                    text = items[index].example,
                     style = TextStyle(fontSize = 14.sp, color = Color.White)
                 )
             }

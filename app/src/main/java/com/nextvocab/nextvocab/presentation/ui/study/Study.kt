@@ -25,8 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.nextvocab.nextvocab.domain.model.Word
-import com.nextvocab.nextvocab.presentation.ui.WordHeader
+import com.nextvocab.nextvocab.domain.model.FlashCard
+import com.nextvocab.nextvocab.presentation.ui.BaseHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import java.util.concurrent.TimeUnit
 
@@ -58,7 +58,7 @@ fun Study(
                 .background(BackColor)
                 .padding(start = 12.dp, end = 12.dp, top = 24.dp),
         ) {
-            WordHeader(name = currentCard.name, partOfSpeak = currentCard.partOfSpeak,
+            BaseHeader(name = currentCard.name, partOfSpeak = currentCard.partOfSpeak,
                 onCancelClick = {
                     onBackClick()
                 })
@@ -151,9 +151,9 @@ enum class CardFeedback {
     EASY
 }
 
-fun formatCardContent(word: Word): String {
-    val formattedMeaning = word.meaning.map { it.meaning }.joinToString("\n") { "* $it" }
-    val formattedExample = word.examples.map { it.example }.mapIndexed { index, item ->
+fun formatCardContent(flashCard: FlashCard): String {
+    val formattedMeaning = flashCard.meaning.map { it.meaning }.joinToString("\n") { "* $it" }
+    val formattedExample = flashCard.examples.map { it.example }.mapIndexed { index, item ->
         "${index + 1}. $item"
     }.joinToString("\n")
     return "$formattedMeaning\n\n$formattedExample"
@@ -161,9 +161,9 @@ fun formatCardContent(word: Word): String {
 
 
 fun updateCardState(
-    card: Word,
+    card: FlashCard,
     feedback: CardFeedback
-): Word {
+): FlashCard {
     val newReviewInterval = when (feedback) {
         CardFeedback.AGAIN -> 1
         CardFeedback.HARD -> maxOf(1, card.reviewInterval / 2)

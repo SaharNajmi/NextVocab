@@ -1,9 +1,7 @@
 package com.nextvocab.nextvocab.presentation.ui.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -22,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nextvocab.nextvocab.R
 import com.nextvocab.nextvocab.presentation.ui.theme.ItemColor
-import com.nextvocab.nextvocab.presentation.ui.theme.Purple80
 
 @Composable
 fun SearchBar(

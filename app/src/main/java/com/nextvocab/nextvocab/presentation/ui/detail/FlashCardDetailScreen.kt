@@ -28,18 +28,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
-import com.nextvocab.nextvocab.presentation.ui.WordHeader
+import com.nextvocab.nextvocab.presentation.ui.BaseHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
-fun CardDetailScreen(
+fun FlashCardDetailScreen(
     wordName: String,
-    sharedViewModel: SharedViewModel,
-    detailViewModel: WordDetailViewModel,
+    viewModel: FlashCardDetailViewModel,
     goHome:()->Unit
 ) {
-    val word = detailViewModel.getWordById(wordName).collectAsStateWithLifecycle(null)
+    val word = viewModel.getWordById(wordName).collectAsStateWithLifecycle(null)
     word.value?.let { it ->
         val formattedMeaning = it.meaning.map { it.meaning }.joinToString("\n") { "* $it" }
 
@@ -56,7 +54,7 @@ fun CardDetailScreen(
                 .background(BackColor)
                 .padding(start = 12.dp, end = 12.dp, top = 24.dp),
         ) {
-            WordHeader(name = it.name, partOfSpeak = it.partOfSpeak,
+            BaseHeader(name = it.name, partOfSpeak = it.partOfSpeak,
                 onCancelClick = {
                     goHome()
                 })
@@ -100,7 +98,7 @@ fun CardDetailScreen(
                                 isCheck = true
                             )
                         }, examples = examples.map { ExampleModel(example = it, isCheck = true) })
-                        sharedViewModel.updateWord(newItem)
+                        viewModel.updateWord(newItem)
                        goHome()
                     }
                 ) {
@@ -113,7 +111,7 @@ fun CardDetailScreen(
                         .padding(bottom = 12.dp, start = 4.dp),
                     shape = RoundedCornerShape(12.dp),
                     onClick = {
-                        sharedViewModel.deleteWord(it)
+                        viewModel.deleteWord(it)
                      goHome()
                     }
                 ) {

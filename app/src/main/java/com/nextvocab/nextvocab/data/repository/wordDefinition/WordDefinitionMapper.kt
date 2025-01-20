@@ -1,13 +1,14 @@
-package com.nextvocab.nextvocab.data.mapper
+package com.nextvocab.nextvocab.data.repository.wordDefinition
 
-import com.nextvocab.nextvocab.data.model.WordDefinitionResponse
-import com.nextvocab.nextvocab.domain.model.Word
+import com.nextvocab.nextvocab.data.mapper.Mapper
+import com.nextvocab.nextvocab.data.remote.WordDefinitionResponse
 import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
 
-class WordDefinitionMapper : Mapper<WordDefinitionResponse, Word> {
-    override fun mapToDomain(entity: WordDefinitionResponse): Word {
-        return Word(
+class WordDefinitionMapper : Mapper<WordDefinitionResponse, WordDefinition> {
+
+    override fun mapToDomain(entity: WordDefinitionResponse): WordDefinition {
+        return WordDefinition(
 
             name = "${entity.word}: ${
                 entity.phonetic ?: entity.phonetics.mapNotNull { it.text }

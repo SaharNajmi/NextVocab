@@ -32,7 +32,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nextvocab.nextvocab.R
-import com.nextvocab.nextvocab.domain.model.Word
+import com.nextvocab.nextvocab.domain.model.FlashCard
+import com.nextvocab.nextvocab.domain.usecase.filterByName
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
 import com.nextvocab.nextvocab.presentation.ui.GradientButton
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
@@ -42,16 +43,17 @@ import com.nextvocab.nextvocab.presentation.ui.theme.gradientPurpleColor2
 
 @Composable
 fun HomeScreen(
-    sharedViewModel: SharedViewModel,
+    homeViewModel: HomeViewModel,
     onStudyClick: () -> Unit,
     addNewCardClick: () -> Unit,
     wordItemClick: (word: String) -> Unit
 ) {
     val context = LocalContext.current
     var searchInput by remember { mutableStateOf("") }
-    val wordsToReview by sharedViewModel.getTodayReviewWords().collectAsStateWithLifecycle(initialValue = emptyList())
+    val wordsToReview by homeViewModel.getTodayReviewWords()
+        .collectAsStateWithLifecycle(initialValue = emptyList())
 
-    val items = sharedViewModel.words.collectAsStateWithLifecycle()
+    val items = homeViewModel.words.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -70,8 +72,12 @@ fun HomeScreen(
             onClick = {
                 if (wordsToReview.isNotEmpty()) {
                     onStudyClick()
-                }else{
-                    Toast.makeText( context, "There is no cards to review for today", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "There is no cards to review for today",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             })
         GradientButton(
@@ -96,12 +102,7 @@ fun HomeScreen(
             }
         )
 
-        val filteredItems = if (searchInput.isEmpty()) {
-            items.value
-        } else {
-            items.value.filter { it.name.contains(searchInput) }
-        }
-        WordsList(filteredItems) { word ->
+        WordsList(items.value.filterByName(searchInput)) { word ->
             wordItemClick(word.name)
         }
     }
@@ -109,11 +110,11 @@ fun HomeScreen(
 
 @Composable
 private fun WordsList(
-    words: List<Word>,
-    onEditClicked: (Word) -> Unit
+    flashCards: List<FlashCard>,
+    onEditClicked: (FlashCard) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(top = 12.dp, start = 4.dp, end = 4.dp)) {
-        items(words.size) { index ->
+        items(flashCards.size) { index ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,13 +123,13 @@ private fun WordsList(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = words[index].name,
+                    text = flashCards[index].name,
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .padding(12.dp),
                     style = TextStyle(color = Color.White)
                 )
-                IconButton(onClick = { onEditClicked(words[index]) }) {
+                IconButton(onClick = { onEditClicked(flashCards[index]) }) {
                     Icon(
                         Icons.Outlined.Edit,
                         contentDescription = "edit",

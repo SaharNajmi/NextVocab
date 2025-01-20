@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.presentation.ui.example
+package com.nextvocab.nextvocab.presentation.ui.meaning
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +17,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -40,65 +39,53 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import com.nextvocab.nextvocab.domain.model.ExampleModel
 import com.nextvocab.nextvocab.domain.model.MeaningModel
-import com.nextvocab.nextvocab.domain.model.Word
-import com.nextvocab.nextvocab.presentation.navigation.NavigationItem
 import com.nextvocab.nextvocab.presentation.sharedviewmodel.SharedViewModel
-import com.nextvocab.nextvocab.presentation.ui.WordHeader
+import com.nextvocab.nextvocab.presentation.ui.BaseHeader
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 import com.nextvocab.nextvocab.presentation.ui.theme.Purple40
 import kotlinx.coroutines.launch
 
 @Composable
-fun ExampleSelectionScreen(
+fun MeaningsScreen(
     sharedViewModel: SharedViewModel,
-    exampleViewModel: ExampleViewModel,
-    onBackClick:()->Unit,
-    onCancelClick:()->Unit
+    onExampleScreen: () -> Unit,
+    onCancelClick: () -> Unit
 ) {
-    val wordDefinition=sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
+
+    val wordDefinition = sharedViewModel.wordDefinition.collectAsStateWithLifecycle()
     var items by rememberSaveable {
         mutableStateOf(
-            exampleViewModel.examples ?: wordDefinition.value?.examples
+            wordDefinition.value?.meaning
         )
     }
 
-
-    var newExample by remember { mutableStateOf("") }
+    var newMeaning by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackColor)
             .padding(18.dp)
     ) {
-        Row {
-            IconButton(
-                onClick = {
-                    exampleViewModel.examples = items
-                   onBackClick()
-                }
-            ) {
-                Icon(Icons.Outlined.ArrowBack, contentDescription = "", tint = Purple40)
-            }
-            WordHeader(name = wordDefinition.value!!.name,
-                partOfSpeak = wordDefinition.value!!.partOfSpeak,
+        sharedViewModel.wordDefinition.collectAsStateWithLifecycle().value?.run {
+            BaseHeader(name = name,
+                partOfSpeak = partOfSpeak,
                 onCancelClick = {
                     sharedViewModel.resetWordDefinition()
-                    exampleViewModel.resetYourSteps()
-                  onCancelClick()
+                    onCancelClick()
                 })
         }
 
-        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "EXAMPLES",
+            text = "MEANINGS",
             style = TextStyle(fontSize = 24.sp, color = Color.White),
             modifier = Modifier.align(Alignment.Start)
         )
@@ -106,23 +93,24 @@ fun ExampleSelectionScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Choose the examples you want",
+            text = "Choose the meanings you want",
             style = TextStyle(fontSize = 18.sp, color = Color.White),
             modifier = Modifier.align(Alignment.Start)
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             TextField(
-                value = newExample,
+                value = newMeaning,
                 onValueChange = {
-                    newExample = it
+                    newMeaning = it
                 },
                 label = {
                     Text(
-                        "Add your example",
+                        "Add your meaning",
                         style = TextStyle(fontSize = 12.sp)
                     )
                 },
@@ -136,10 +124,10 @@ fun ExampleSelectionScreen(
                 .padding(start = 10.dp)
                 .fillMaxHeight(), onClick = {
                 items = buildList {
-                    add(ExampleModel(example = newExample, isCheck = true))
-                    items?.let { addAll(it) }
+                    add(MeaningModel(meaning = newMeaning, isCheck = true))
+                    addAll(items!!)
                 }
-                newExample = ""
+                newMeaning = ""
                 scope.launch {
                     listState.animateScrollToItem(0)
                 }
@@ -148,18 +136,20 @@ fun ExampleSelectionScreen(
                 Icon(Icons.Outlined.Add, contentDescription = "add", tint = Color.White)
             }
         }
+
         Spacer(modifier = Modifier.height(8.dp))
+
         Column {
-            ShowExamples(
-                modifier = Modifier.weight(1f),
-                items = items?: listOf(),
+            ShowMeaning(
+                modifier = Modifier.weight(1F),
+                items = items!!,
                 state = listState
             ) { isChecked, checkedIndex ->
-                items = items?.mapIndexed { index, exampleModel ->
+                items = items!!.mapIndexed { index, meaningModel ->
                     if (index == checkedIndex)
-                        exampleModel.copy(isCheck = isChecked)
+                        meaningModel.copy(isCheck = isChecked)
                     else
-                        exampleModel
+                        meaningModel
                 }
             }
 
@@ -168,40 +158,23 @@ fun ExampleSelectionScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 onClick = {
-                    val examples = items?.filter { it.isCheck }?.map { it.example }
-                        ?.map { ExampleModel(example = it, isCheck = false) }
-                    sharedViewModel.wordDefinition.value?.run {
-                        sharedViewModel.insertWord(
-                            Word(
-                                name = name,
-                                meaning = sharedViewModel.meanings.map {
-                                    MeaningModel(
-                                        meaning = it,
-                                        isCheck = true
-                                    )
-                                },
-                                partOfSpeak = partOfSpeak,
-                                examples = examples ?: listOf()
-                            )
-                        )
-                    }
-                    sharedViewModel.resetWordDefinition()
-                    exampleViewModel.resetYourSteps()
-                  onCancelClick()
+                    val meanings = items?.filter { it.isCheck }?.map { it.meaning }
+                    sharedViewModel.addMeanings(meanings ?: listOf())
+                    onExampleScreen()
                 }
             ) {
-                Text("ADD")
+                Text("Next")
             }
         }
     }
 }
 
 @Composable
-fun ShowExamples(
+fun ShowMeaning(
     modifier: Modifier = Modifier,
-    items: List<ExampleModel>,
+    items: List<MeaningModel>,
     state: LazyListState,
-    onCheckedChange: (Boolean, Int) -> Unit
+    onCheckedChange: (Boolean, Int) -> Unit,
 ) {
     LazyColumn(modifier = modifier, state) {
         items(items.size, key = { items[it].id }) { index ->
@@ -216,7 +189,7 @@ fun ShowExamples(
                     }
                 )
                 Text(
-                    text = items[index].example,
+                    text = items[index].meaning,
                     style = TextStyle(fontSize = 14.sp, color = Color.White)
                 )
             }

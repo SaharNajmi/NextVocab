@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.data.model
+package com.nextvocab.nextvocab.data.remote
 
 
 data class WordDefinitionResponse(

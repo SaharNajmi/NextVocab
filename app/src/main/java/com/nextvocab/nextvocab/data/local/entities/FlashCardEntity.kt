@@ -7,7 +7,7 @@ import com.nextvocab.nextvocab.presentation.ui.study.CardFeedback
 import java.util.Date
 
 @Entity(tableName = "words")
-data class WordEntity(
+data class FlashCardEntity(
     @PrimaryKey @ColumnInfo(name = "word") val word: String,
     @ColumnInfo(name = "meanings") val meaning: List<String>?,
     @ColumnInfo(name = "partOfSpeak") val partOfSpeak: String,

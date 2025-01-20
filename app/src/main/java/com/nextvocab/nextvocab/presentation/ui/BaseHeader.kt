@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.nextvocab.nextvocab.presentation.ui.theme.BackColor
 
 @Composable
-fun WordHeader(
+fun BaseHeader(
     name: String,
     partOfSpeak: String,
     onCancelClick: () -> Unit,

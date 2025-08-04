@@ -1,4 +1,4 @@
-package com.nextvocab.nextvocab.ui.theme
+package com.nextvocab.nextvocab.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
